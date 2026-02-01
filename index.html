@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR CPU Instruction Execution Visualizer</title>
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Three.js Core -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- AR.js for WebXR AR capabilities -->
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/three.js/build/ar-threex.js"></script>
+    
+    <!-- GSAP for smooth animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+    <!-- AR Container -->
+    <div id="ar-container"></div>
+    
+    <!-- Component Labels Overlay -->
+    <div id="component-labels">
+        <div class="component-label" id="label-pc" style="display: none;">
+            <div class="label-title">PC</div>
+            <div class="label-desc">Program Counter</div>
+        </div>
+        <div class="component-label" id="label-ir" style="display: none;">
+            <div class="label-title">IR</div>
+            <div class="label-desc">Instruction Register</div>
+        </div>
+        <div class="component-label" id="label-cu" style="display: none;">
+            <div class="label-title">CU</div>
+            <div class="label-desc">Control Unit</div>
+        </div>
+        <div class="component-label" id="label-alu" style="display: none;">
+            <div class="label-title">ALU</div>
+            <div class="label-desc">Arithmetic Logic Unit</div>
+        </div>
+        <div class="component-label" id="label-r1" style="display: none;">
+            <div class="label-title">R1</div>
+            <div class="label-desc">Register 1</div>
+        </div>
+        <div class="component-label" id="label-r2" style="display: none;">
+            <div class="label-title">R2</div>
+            <div class="label-desc">Register 2</div>
+        </div>
+        <div class="component-label" id="label-memory" style="display: none;">
+            <div class="label-title">MEM</div>
+            <div class="label-desc">Main Memory</div>
+        </div>
+    </div>
+    
+    <!-- Stage Explanation Banner -->
+    <div id="stage-banner">
+        <div class="stage-title" id="stage-title">Ready</div>
+        <div class="stage-explanation" id="stage-explanation">
+            Click an instruction to see how it executes in the CPU
+        </div>
+    </div>
+    
+    <!-- Control Panel -->
+    <div id="control-panel">
+        <div class="panel-header">
+            <h2>CPU Instruction Visualizer</h2>
+            <button id="reset-btn" class="control-btn">Reset</button>
+        </div>
+        
+        <div class="instruction-section">
+            <h3>📚 Select Instruction</h3>
+            <div class="instruction-grid">
+                <button class="instruction-btn" data-instruction="MOV_R1_5">
+                    <div class="inst-code">MOV R1, #5</div>
+                    <div class="inst-meaning">Move value 5 into R1</div>
+                    <div class="inst-flow">IR → R1</div>
+                </button>
+                
+                <button class="instruction-btn" data-instruction="ADD_R1_R2">
+                    <div class="inst-code">ADD R1, R2</div>
+                    <div class="inst-meaning">Add R1 and R2, store in R1</div>
+                    <div class="inst-flow">R1,R2 → ALU → R1</div>
+                </button>
+                
+                <button class="instruction-btn" data-instruction="LOAD_R1_100">
+                    <div class="inst-code">LOAD R1, [100]</div>
+                    <div class="inst-meaning">Load memory address 100 into R1</div>
+                    <div class="inst-flow">MEM[100] → R1</div>
+                </button>
+                
+                <button class="instruction-btn" data-instruction="STORE_R2_200">
+                    <div class="inst-code">STORE R2, [200]</div>
+                    <div class="inst-meaning">Store R2 into memory address 200</div>
+                    <div class="inst-flow">R2 → MEM[200]</div>
+                </button>
+                
+                <button class="instruction-btn" data-instruction="SUB_R3_R1">
+                    <div class="inst-code">SUB R3, R1</div>
+                    <div class="inst-meaning">Subtract R1 from R3</div>
+                    <div class="inst-flow">R3,R1 → ALU → R3</div>
+                </button>
+                
+                <button class="instruction-btn" data-instruction="MUL_R2_R3">
+                    <div class="inst-code">MUL R2, R3</div>
+                    <div class="inst-meaning">Multiply R2 and R3</div>
+                    <div class="inst-flow">R2,R3 → ALU → R2</div>
+                </button>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>🎬 Current Execution</h3>
+            <div id="status-display">
+                <p class="status-line">Instruction: <span id="current-instruction">None</span></p>
+                <p class="status-line">Stage: <span id="current-stage">Ready</span></p>
+                <p class="status-line">Action: <span id="current-action">Waiting...</span></p>
+            </div>
+        </div>
+        
+        <div class="legend-section">
+            <h3>🎨 Visual Guide</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <span class="color-box" style="background: #0000ff;"></span>
+                    <span>Address Signal (Where to read/write)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box" style="background: #00ff00;"></span>
+                    <span>Data Flow (Actual data moving)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box" style="background: #ffff00;"></span>
+                    <span>Control Signal (Instructions)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box" style="background: #ff0000;"></span>
+                    <span>Write Operation (Saving result)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-box" style="background: #00ffff;"></span>
+                    <span>Active Component (Currently working)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="help-section">
+            <h3>💡 Understanding the Animation</h3>
+            <ul class="help-list">
+                <li><strong>Glowing Components:</strong> Currently active</li>
+                <li><strong>Flying Spheres:</strong> Data moving between parts</li>
+                <li><strong>Color = Meaning:</strong> Check the Visual Guide above</li>
+                <li><strong>Watch the flow:</strong> See where data travels step-by-step</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loading-content">
+            <h2>Initializing AR Camera...</h2>
+            <p>Please allow camera access</p>
+            <div class="spinner"></div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
