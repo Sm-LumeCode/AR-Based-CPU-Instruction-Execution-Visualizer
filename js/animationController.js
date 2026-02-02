@@ -1,22 +1,73 @@
 /**
- * Animation Controller - WITH EDUCATIONAL CONTEXT
- * Orchestrates the execution of instruction animation sequences
- * NOW with detailed explanations for each step
+ * Animation Controller - MODE ROUTER + USER INPUT HANDLER
+ * Routes to appropriate animator based on selected mode
+ * Supports both predefined and user-entered instructions
  */
 
-import { InstructionAnimations } from './instructionAnimations.js';
+import { InstructionCycleMode } from './instructionCycleMode.js';
+import { MicroOperationMode } from './microOperationMode.js';
 import { DataFlow } from './dataFlow.js';
+import { InstructionParser } from './instructionParser.js';
+import { TemplateInstructionGenerator } from './templateInstructionGenerator.js';
+import { InstructionDefinitions } from './instructionDefinitions.js';
+import { MicroOpDefinitions } from './microOpDefinitions.js';
 
 export class AnimationController {
     constructor(cpuModel, scene) {
         this.cpuModel = cpuModel;
         this.scene = scene;
-        this.instructionAnimations = new InstructionAnimations();
         this.dataFlow = new DataFlow(scene);
+        
+        // Initialize mode handlers
+        this.instructionCycleMode = new InstructionCycleMode(cpuModel, scene, this.dataFlow);
+        this.microOperationMode = new MicroOperationMode(cpuModel, scene, this.dataFlow);
+        
+        // Initialize user input components
+        this.parser = new InstructionParser();
+        this.instructionDefs = new InstructionDefinitions();
+        this.microOpDefs = new MicroOpDefinitions();
+        this.generator = new TemplateInstructionGenerator(this.instructionDefs, this.microOpDefs);
+        
+        this.currentMode = 'instruction-cycle';
+        this.speedMultiplier = 1.0;
         this.isAnimating = false;
         this.currentInstruction = null;
     }
 
+    /**
+     * Set visualization mode
+     */
+    setMode(mode) {
+        if (this.isAnimating) {
+            console.log('Cannot change mode during animation');
+            return false;
+        }
+        
+        this.currentMode = mode;
+        console.log(`Mode changed to: ${mode}`);
+        
+        // Update UI
+        const modeElement = document.getElementById('current-mode');
+        if (modeElement) {
+            modeElement.textContent = mode === 'instruction-cycle' 
+                ? 'Instruction Cycle' 
+                : 'Micro-Operations';
+        }
+        
+        return true;
+    }
+
+    /**
+     * Set animation speed
+     */
+    setSpeed(multiplier) {
+        this.speedMultiplier = multiplier;
+        console.log(`Speed set to: ${multiplier}x`);
+    }
+
+    /**
+     * Execute predefined instruction (from buttons)
+     */
     async executeInstruction(instructionName) {
         if (this.isAnimating) {
             console.log('Animation already in progress');
@@ -26,216 +77,183 @@ export class AnimationController {
         this.isAnimating = true;
         this.currentInstruction = instructionName;
 
-        // Get instruction details
-        const instructionInfo = this.getInstructionInfo(instructionName);
-        this.updateInstructionDisplay(instructionInfo.display);
+        // Update UI
+        this.updateInstructionDisplay(instructionName);
 
-        const sequence = this.instructionAnimations.getSequence(instructionName);
-        
-        if (!sequence || sequence.length === 0) {
-            console.error('No animation sequence found for:', instructionName);
-            this.isAnimating = false;
-            return;
-        }
-
-        // Execute each stage sequentially
-        for (const stage of sequence) {
-            // Update UI with detailed stage info
-            this.updateStageDisplay(stage.stage, stage.description, stage.explanation);
-            
-            // Execute all steps in this stage
-            await this.executeStage(stage);
-            
-            // Pause between stages for comprehension
-            await this.delay(800);
+        try {
+            // Route to appropriate mode handler
+            if (this.currentMode === 'instruction-cycle') {
+                await this.instructionCycleMode.execute(instructionName, this.speedMultiplier);
+            } else if (this.currentMode === 'micro-operation') {
+                await this.microOperationMode.execute(instructionName, this.speedMultiplier);
+            }
+        } catch (error) {
+            console.error('Animation error:', error);
         }
 
         this.isAnimating = false;
         this.currentInstruction = null;
-        this.updateStageDisplay('Ready', 'Click an instruction to see how it executes in the CPU', '');
+        
+        // Reset UI
+        this.updateStageDisplay('Ready', 'Select an instruction to begin visualization');
         this.updateInstructionDisplay('None');
     }
 
-    getInstructionInfo(instructionName) {
-        const info = {
-            'MOV_R1_5': { display: 'MOV R1, #5', meaning: 'Moving value 5 into Register R1' },
-            'ADD_R1_R2': { display: 'ADD R1, R2', meaning: 'Adding R1 and R2, storing in R1' },
-            'LOAD_R1_100': { display: 'LOAD R1, [100]', meaning: 'Loading from memory[100] to R1' },
-            'STORE_R2_200': { display: 'STORE R2, [200]', meaning: 'Storing R2 into memory[200]' },
-            'SUB_R3_R1': { display: 'SUB R3, R1', meaning: 'Subtracting R1 from R3' },
-            'MUL_R2_R3': { display: 'MUL R2, R3', meaning: 'Multiplying R2 and R3' }
-        };
-        return info[instructionName] || { display: instructionName, meaning: '' };
-    }
-
-    async executeStage(stage) {
-        for (const step of stage.steps) {
-            // Update action display
-            this.updateActionDisplay(step);
-            await this.executeStep(step);
+    /**
+     * Execute user-entered instruction (from text input)
+     * TEMPLATE MATCHING ONLY - NO COMPUTATION
+     */
+    async executeUserInstruction(userInput) {
+        if (this.isAnimating) {
+            return { success: false, error: 'Animation already in progress' };
         }
-    }
 
-    async executeStep(step) {
-        switch (step.type) {
-            case 'highlight':
-                return this.highlightComponent(step);
-            
-            case 'dataToken':
-                return this.animateDataToken(step);
-            
-            case 'glowingWire':
-                return this.animateGlowingWire(step);
-            
-            case 'reset':
-                return this.resetComponents(step);
-            
-            default:
-                console.warn('Unknown step type:', step.type);
-                return Promise.resolve();
-        }
-    }
-
-    async highlightComponent(step) {
-        this.cpuModel.highlightComponent(step.component, step.color);
-        await this.delay(step.duration * 1000);
-    }
-
-    async animateDataToken(step) {
-        const fromPos = this.getComponentPosition(step.from);
-        const toPos = this.getComponentPosition(step.to);
+        // Parse user input
+        const parsed = this.parser.parse(userInput);
         
-        if (!fromPos || !toPos) {
-            console.warn('Invalid component positions:', step.from, step.to);
-            return;
+        if (!parsed.valid) {
+            return { success: false, error: parsed.error };
         }
 
-        await this.dataFlow.createDataToken(
-            fromPos,
-            toPos,
-            step.color,
-            step.duration,
-            step.label
-        );
-    }
+        this.isAnimating = true;
+        this.currentInstruction = parsed.displayName;
 
-    async animateGlowingWire(step) {
-        const fromPos = this.getComponentPosition(step.from);
-        const toPos = this.getComponentPosition(step.to);
-        
-        if (!fromPos || !toPos) {
-            console.warn('Invalid component positions:', step.from, step.to);
-            return;
+        // Update UI
+        this.updateInstructionDisplay(parsed.displayName);
+
+        try {
+            // Generate sequence from template
+            let sequence;
+            if (this.currentMode === 'instruction-cycle') {
+                sequence = this.generator.generateInstructionCycleSequence(parsed);
+                await this.executeCustomInstructionCycle(sequence);
+            } else {
+                sequence = this.generator.generateMicroOpSequence(parsed);
+                await this.executeCustomMicroOps(sequence);
+            }
+            
+            this.isAnimating = false;
+            this.currentInstruction = null;
+            
+            // Reset UI
+            this.updateStageDisplay('Ready', 'Enter another instruction or select from examples');
+            
+            return { success: true, message: 'Instruction executed successfully' };
+            
+        } catch (error) {
+            console.error('User instruction error:', error);
+            this.isAnimating = false;
+            this.currentInstruction = null;
+            return { success: false, error: 'Animation error occurred' };
         }
-
-        await this.dataFlow.createGlowingWire(
-            fromPos,
-            toPos,
-            step.color,
-            step.duration
-        );
     }
 
-    async resetComponents(step) {
-        if (step.component === 'all') {
-            this.cpuModel.resetAll();
-        } else {
-            this.cpuModel.resetComponent(step.component);
+    /**
+     * Execute custom instruction cycle sequence
+     */
+    async executeCustomInstructionCycle(sequence) {
+        for (const stage of sequence) {
+            this.updateStageDisplay(stage.stage, stage.description);
+            await this.instructionCycleMode.executeStage(stage, this.speedMultiplier);
+            await this.delay(800);
         }
-        await this.delay(200);
     }
 
-    getComponentPosition(componentName) {
-        const component = this.cpuModel.components[componentName];
-        if (!component) {
-            console.warn('Component not found:', componentName);
-            return null;
+    /**
+     * Execute custom micro-operation sequence
+     */
+    async executeCustomMicroOps(sequence) {
+        for (const tState of sequence) {
+            this.microOperationMode.updateTStateDisplay(tState.tState, tState.description);
+            await this.microOperationMode.executeTState(tState, this.speedMultiplier);
+            await this.delay(1000);
         }
-
-        const worldPosition = new THREE.Vector3();
-        component.getWorldPosition(worldPosition);
-        return worldPosition;
     }
 
-    updateStageDisplay(stage, description, explanation) {
+    /**
+     * Update stage display banner
+     */
+    updateStageDisplay(stage, description) {
         const stageElement = document.getElementById('stage-title');
         const explanationElement = document.getElementById('stage-explanation');
         const currentStageElement = document.getElementById('current-stage');
         
-        if (stageElement) {
-            stageElement.textContent = stage;
-        }
-        
-        if (explanationElement) {
-            explanationElement.textContent = description;
-        }
-        
-        if (currentStageElement) {
-            currentStageElement.textContent = stage;
-        }
+        if (stageElement) stageElement.textContent = stage;
+        if (explanationElement) explanationElement.textContent = description;
+        if (currentStageElement) currentStageElement.textContent = stage;
     }
 
+    /**
+     * Update instruction display
+     */
     updateInstructionDisplay(instruction) {
         const instructionElement = document.getElementById('current-instruction');
         if (instructionElement) {
-            instructionElement.textContent = instruction;
+            const displayName = this.getInstructionDisplayName(instruction);
+            instructionElement.textContent = displayName;
         }
     }
 
-    updateActionDisplay(step) {
-        const actionElement = document.getElementById('current-action');
-        if (!actionElement) return;
-
-        let actionText = '';
+    /**
+     * Update micro-operation T-state indicator
+     */
+    updateMicroOpIndicator(tState, description) {
+        const indicator = document.getElementById('micro-op-indicator');
+        const tStateValue = document.getElementById('tstate-value');
+        const microOpText = document.getElementById('micro-op-text');
         
-        switch (step.type) {
-            case 'highlight':
-                actionText = `Activating ${step.component}`;
-                break;
-            case 'dataToken':
-                const dataType = this.getDataType(step.color);
-                actionText = `${dataType} flowing: ${step.from} → ${step.to}`;
-                break;
-            case 'glowingWire':
-                actionText = `Control signal: ${step.from} → ${step.to}`;
-                break;
-            case 'reset':
-                actionText = 'Completing operation...';
-                break;
-            default:
-                actionText = 'Processing...';
+        if (this.currentMode === 'micro-operation') {
+            if (indicator) indicator.style.display = 'block';
+            if (tStateValue) tStateValue.textContent = tState;
+            if (microOpText) microOpText.textContent = description;
+        } else {
+            if (indicator) indicator.style.display = 'none';
         }
-        
-        actionElement.textContent = actionText;
     }
 
-    getDataType(color) {
-        const colorMap = {
-            0x0000ff: 'Address',
-            0x00ff00: 'Data',
-            0xffff00: 'Control',
-            0xff0000: 'Write',
-            0x00ffff: 'Signal'
+    /**
+     * Get friendly instruction name
+     */
+    getInstructionDisplayName(instructionName) {
+        const names = {
+            'MOV_R1_5': 'MOV R1, #5',
+            'ADD_R1_R2': 'ADD R1, R2',
+            'LOAD_R1_100': 'LOAD R1, [100]',
+            'STORE_R2_200': 'STORE R2, [200]',
+            'None': 'None'
         };
-        return colorMap[color] || 'Signal';
+        return names[instructionName] || instructionName;
     }
 
+    /**
+     * Reset visualization
+     */
     reset() {
         this.cpuModel.resetAll();
         this.dataFlow.clearAllTokens();
         this.isAnimating = false;
         this.currentInstruction = null;
-        this.updateStageDisplay('Ready', 'Click an instruction to see how it executes in the CPU', '');
+        
+        this.updateStageDisplay('Ready', 'Enter an instruction or select from examples');
         this.updateInstructionDisplay('None');
-        this.updateActionDisplay({ type: 'reset' });
+        this.updateMicroOpIndicator('T0', '');
         
         const actionElement = document.getElementById('current-action');
-        if (actionElement) {
-            actionElement.textContent = 'Waiting...';
-        }
+        if (actionElement) actionElement.textContent = 'Waiting...';
+        
+        // Clear user input
+        const userInput = document.getElementById('user-instruction-input');
+        if (userInput) userInput.value = '';
+        
+        // Clear error message
+        const errorMsg = document.getElementById('instruction-error');
+        if (errorMsg) errorMsg.textContent = '';
     }
 
+    /**
+     * Utility delay with speed multiplier
+     */
     delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise(resolve => setTimeout(resolve, ms / this.speedMultiplier));
     }
 }

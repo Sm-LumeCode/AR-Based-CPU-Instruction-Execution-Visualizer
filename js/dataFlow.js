@@ -1,23 +1,33 @@
 /**
  * Data Flow Visualization - MOBILE OPTIMIZED
- * Creates and animates data tokens moving between CPU components
+ * Larger, more visible tokens and effects for mobile devices
  */
 
 export class DataFlow {
     constructor(scene) {
         this.scene = scene;
         this.activeTokens = [];
-        this.scaleFactor = 0.4; // Match CPU model scale
+        this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        this.scaleFactor = this.isMobile ? 0.35 : 0.45; // Match CPU model scale
     }
 
-    createDataToken(start, end, color = 0x00ff00, duration = 1.0) {
+    /**
+     * Create animated data token (sphere) - Mobile optimized
+     */
+    createDataToken(start, end, color = 0x00ff00, duration = 1.0, label = '') {
         return new Promise((resolve) => {
-            // Smaller sphere for mobile visibility
-            const geometry = new THREE.SphereGeometry(0.06 * this.scaleFactor, 12, 12);
+            // Larger tokens for mobile visibility
+            const tokenSize = this.isMobile ? 0.08 : 0.06;
+            
+            const geometry = new THREE.SphereGeometry(
+                tokenSize * this.scaleFactor, 
+                this.isMobile ? 10 : 12, 
+                this.isMobile ? 10 : 12
+            );
             const material = new THREE.MeshStandardMaterial({
                 color: color,
                 emissive: color,
-                emissiveIntensity: 1.0,
+                emissiveIntensity: this.isMobile ? 1.3 : 1.0,
                 metalness: 0.3,
                 roughness: 0.3
             });
@@ -46,11 +56,12 @@ export class DataFlow {
                 }
             });
             
-            // Pulsing effect
+            // Enhanced pulsing effect for mobile
+            const pulseScale = this.isMobile ? 1.6 : 1.5;
             gsap.to(token.scale, {
-                x: 1.5,
-                y: 1.5,
-                z: 1.5,
+                x: pulseScale,
+                y: pulseScale,
+                z: pulseScale,
                 duration: 0.4,
                 yoyo: true,
                 repeat: Math.floor((duration / 0.4) * 2)
@@ -58,13 +69,16 @@ export class DataFlow {
         });
     }
 
+    /**
+     * Create glowing wire effect - Mobile optimized
+     */
     createGlowingWire(start, end, color = 0xffff00, duration = 0.5) {
         return new Promise((resolve) => {
             const points = [start.clone(), end.clone()];
             const geometry = new THREE.BufferGeometry().setFromPoints(points);
             const material = new THREE.LineBasicMaterial({
                 color: color,
-                linewidth: 3,
+                linewidth: this.isMobile ? 4 : 3,
                 transparent: true,
                 opacity: 0
             });
@@ -72,11 +86,14 @@ export class DataFlow {
             const wire = new THREE.Line(geometry, material);
             this.scene.add(wire);
             
+            // Brighter fade in for mobile
+            const maxOpacity = this.isMobile ? 1.0 : 0.9;
             gsap.to(material, {
-                opacity: 0.9,
+                opacity: maxOpacity,
                 duration: 0.2,
                 onComplete: () => {
                     setTimeout(() => {
+                        // Fade out
                         gsap.to(material, {
                             opacity: 0,
                             duration: 0.3,
@@ -93,6 +110,9 @@ export class DataFlow {
         });
     }
 
+    /**
+     * Clear all active tokens
+     */
     clearAllTokens() {
         this.activeTokens.forEach(token => {
             this.scene.remove(token);
