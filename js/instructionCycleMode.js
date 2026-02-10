@@ -21,10 +21,15 @@ export class InstructionCycleMode {
             return;
         }
 
-        // Execute each stage
+        // Safety reset before instruction starts
+        this.cpuModel.resetAll();
+
         for (const stage of sequence) {
             this.updateStageDisplay(stage.stage, stage.description);
             await this.executeStage(stage, speedMultiplier);
+
+            // Stage-level reset (KEEP THIS)
+            this.cpuModel.resetAll();
             await this.delay(800, speedMultiplier);
         }
     }
@@ -52,8 +57,17 @@ export class InstructionCycleMode {
     }
 
     async highlightComponent(step, speedMultiplier) {
+        // 🔧 FIX 1: Clear previous highlight so only ONE component is active
+        this.cpuModel.resetAll();
+
+        // Highlight current component
         this.cpuModel.highlightComponent(step.component, step.color);
+
+        // Wait for highlight duration
         await this.delay(step.duration * 1000, speedMultiplier);
+
+        // 🔧 FIX 2: Restore component back to normal immediately
+        this.cpuModel.resetComponent(step.component);
     }
 
     async animateDataToken(step, speedMultiplier) {
@@ -65,7 +79,13 @@ export class InstructionCycleMode {
             return;
         }
 
-        await this.dataFlow.createDataToken(fromPos, toPos, step.color, step.duration / speedMultiplier, step.label);
+        await this.dataFlow.createDataToken(
+            fromPos,
+            toPos,
+            step.color,
+            step.duration / speedMultiplier,
+            step.label
+        );
     }
 
     async animateGlowingWire(step, speedMultiplier) {
@@ -77,7 +97,12 @@ export class InstructionCycleMode {
             return;
         }
 
-        await this.dataFlow.createGlowingWire(fromPos, toPos, step.color, step.duration / speedMultiplier);
+        await this.dataFlow.createGlowingWire(
+            fromPos,
+            toPos,
+            step.color,
+            step.duration / speedMultiplier
+        );
     }
 
     async resetComponents(step) {
