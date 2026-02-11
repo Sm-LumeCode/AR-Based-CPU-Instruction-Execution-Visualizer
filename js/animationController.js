@@ -11,23 +11,25 @@ import { InstructionParser } from './instructionParser.js';
 import { TemplateInstructionGenerator } from './templateInstructionGenerator.js';
 import { InstructionDefinitions } from './instructionDefinitions.js';
 import { MicroOpDefinitions } from './microOpDefinitions.js';
+import { CPUState } from './cpuState.js';
 
 export class AnimationController {
     constructor(cpuModel, scene) {
         this.cpuModel = cpuModel;
         this.scene = scene;
         this.dataFlow = new DataFlow(scene);
-        
+        this.cpuState = new CPUState();
+
         // Initialize mode handlers
         this.instructionCycleMode = new InstructionCycleMode(cpuModel, scene, this.dataFlow);
         this.microOperationMode = new MicroOperationMode(cpuModel, scene, this.dataFlow);
-        
+
         // Initialize user input components
         this.parser = new InstructionParser();
         this.instructionDefs = new InstructionDefinitions();
         this.microOpDefs = new MicroOpDefinitions();
         this.generator = new TemplateInstructionGenerator(this.instructionDefs, this.microOpDefs);
-        
+
         this.currentMode = 'instruction-cycle';
         this.speedMultiplier = 1.0;
         this.isAnimating = false;
@@ -42,18 +44,18 @@ export class AnimationController {
             console.log('Cannot change mode during animation');
             return false;
         }
-        
+
         this.currentMode = mode;
         console.log(`Mode changed to: ${mode}`);
-        
+
         // Update UI
         const modeElement = document.getElementById('current-mode');
         if (modeElement) {
-            modeElement.textContent = mode === 'instruction-cycle' 
-                ? 'Instruction Cycle' 
+            modeElement.textContent = mode === 'instruction-cycle'
+                ? 'Instruction Cycle'
                 : 'Micro-Operations';
         }
-        
+
         return true;
     }
 
@@ -87,13 +89,22 @@ export class AnimationController {
             } else if (this.currentMode === 'micro-operation') {
                 await this.microOperationMode.execute(instructionName, this.speedMultiplier);
             }
+
+            // Update logical state
+            this.cpuState.executeInstruction(instructionName);
+
+            // Sync visual state for registers
+            ['R0', 'R1', 'R2', 'R3'].forEach(reg => {
+                this.cpuModel.updateRegisterDisplay(reg, this.cpuState.getRegister(reg));
+            });
+
         } catch (error) {
             console.error('Animation error:', error);
         }
 
         this.isAnimating = false;
         this.currentInstruction = null;
-        
+
         // Reset UI
         this.updateStageDisplay('Ready', 'Select an instruction to begin visualization');
         this.updateInstructionDisplay('None');
@@ -110,7 +121,7 @@ export class AnimationController {
 
         // Parse user input
         const parsed = this.parser.parse(userInput);
-        
+
         if (!parsed.valid) {
             return { success: false, error: parsed.error };
         }
@@ -131,15 +142,23 @@ export class AnimationController {
                 sequence = this.generator.generateMicroOpSequence(parsed);
                 await this.executeCustomMicroOps(sequence);
             }
-            
+
+            // Update logical state
+            this.cpuState.executeInstruction(parsed.type, parsed.params);
+
+            // Sync visual state for registers
+            ['R0', 'R1', 'R2', 'R3'].forEach(reg => {
+                this.cpuModel.updateRegisterDisplay(reg, this.cpuState.getRegister(reg));
+            });
+
             this.isAnimating = false;
             this.currentInstruction = null;
-            
+
             // Reset UI
             this.updateStageDisplay('Ready', 'Enter another instruction or select from examples');
-            
+
             return { success: true, message: 'Instruction executed successfully' };
-            
+
         } catch (error) {
             console.error('User instruction error:', error);
             this.isAnimating = false;
@@ -177,7 +196,7 @@ export class AnimationController {
         const stageElement = document.getElementById('stage-title');
         const explanationElement = document.getElementById('stage-explanation');
         const currentStageElement = document.getElementById('current-stage');
-        
+
         if (stageElement) stageElement.textContent = stage;
         if (explanationElement) explanationElement.textContent = description;
         if (currentStageElement) currentStageElement.textContent = stage;
@@ -201,7 +220,7 @@ export class AnimationController {
         const indicator = document.getElementById('micro-op-indicator');
         const tStateValue = document.getElementById('tstate-value');
         const microOpText = document.getElementById('micro-op-text');
-        
+
         if (this.currentMode === 'micro-operation') {
             if (indicator) indicator.style.display = 'block';
             if (tStateValue) tStateValue.textContent = tState;
@@ -233,18 +252,18 @@ export class AnimationController {
         this.dataFlow.clearAllTokens();
         this.isAnimating = false;
         this.currentInstruction = null;
-        
+
         this.updateStageDisplay('Ready', 'Enter an instruction or select from examples');
         this.updateInstructionDisplay('None');
         this.updateMicroOpIndicator('T0', '');
-        
+
         const actionElement = document.getElementById('current-action');
         if (actionElement) actionElement.textContent = 'Waiting...';
-        
+
         // Clear user input
         const userInput = document.getElementById('user-instruction-input');
         if (userInput) userInput.value = '';
-        
+
         // Clear error message
         const errorMsg = document.getElementById('instruction-error');
         if (errorMsg) errorMsg.textContent = '';
