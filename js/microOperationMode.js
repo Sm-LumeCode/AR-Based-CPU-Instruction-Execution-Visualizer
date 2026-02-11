@@ -21,6 +21,10 @@ export class MicroOperationMode {
             return;
         }
 
+        // Show T-State indicator in Micro-Operation mode
+        const indicator = document.getElementById('micro-op-indicator');
+        if (indicator) indicator.style.display = 'block';
+
         // Execute each T-state
         for (const tState of sequence) {
             this.updateTStateDisplay(tState.tState, tState.description);

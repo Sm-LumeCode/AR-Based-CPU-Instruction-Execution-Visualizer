@@ -19,80 +19,80 @@ body {
     z-index: 1;
 }
 
-/* Stage Banner - ULTRA COMPACT */
+/* Stage Banner - BIGGER, CLEARER */
 #stage-banner {
     position: fixed;
-    top: 3px;
-    left: 3px;
-    right: 305px; /* Desktop: Leave space for control panel */
-    background: rgba(0, 0, 0, 0.85);
-    border: 1px solid #00ff00;
-    border-radius: 4px;
-    padding: 4px 8px;
+    top: 5px;
+    left: 5px;
+    right: 350px; /* Desktop: Leave space for wider control panel */
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #00ff00;
+    border-radius: 8px;
+    padding: 10px 15px;
     z-index: 800;
     text-align: center;
-    box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
-    max-height: 60px; /* Limit height */
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    max-height: 140px; /* INCREASED from 90px to prevent overlap */
+    min-height: 60px; /* Added minimum height */
 }
 
 .stage-title {
-    font-size: 0.75em;
+    font-size: 1.1em; /* INCREASED from 0.75em */
     font-weight: bold;
     color: #00ff00;
-    margin-bottom: 2px;
+    margin-bottom: 5px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    line-height: 1.1;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
 }
 
 .stage-explanation {
-    font-size: 0.65em;
+    font-size: 0.9em; /* INCREASED from 0.65em */
     color: #fff;
-    line-height: 1.1;
-    margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.3;
+    margin-bottom: 5px;
 }
 
 .micro-op-indicator {
-    margin-top: 3px;
-    padding: 3px 5px;
-    background: rgba(255, 255, 0, 0.1);
-    border-radius: 3px;
-    border: 1px solid #ffff00;
+    margin-top: 5px;
+    padding: 5px 8px;
+    background: rgba(255, 255, 0, 0.15);
+    border-radius: 5px;
+    border: 2px solid #ffff00;
 }
 
 .tstate-label {
     color: #ffff00;
     font-weight: bold;
-    margin-right: 4px;
-    font-size: 0.65em;
+    margin-right: 6px;
+    font-size: 0.85em; /* INCREASED from 0.65em */
 }
 
 .tstate-value {
     color: #00ffff;
     font-weight: bold;
-    font-size: 0.75em;
-    margin-right: 6px;
+    font-size: 1.0em; /* INCREASED from 0.75em */
+    margin-right: 8px;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
 }
 
 .micro-op-text {
     color: #fff;
-    font-size: 0.6em;
+    font-size: 0.8em; /* INCREASED from 0.6em */
 }
 
-/* Control Panel - Fixed Right Side */
+/* Control Panel - BIGGER */
 #control-panel {
     position: fixed;
     right: 5px;
     top: 5px;
     bottom: 5px;
-    width: 295px;
+    width: 340px; /* INCREASED from 310px */
     background: rgba(15, 15, 30, 0.97);
     border: 2px solid #00ffff;
     border-radius: 10px;
-    padding: 10px;
+    padding: 12px;
     color: #fff;
     z-index: 1000;
     overflow-y: auto;
@@ -103,25 +103,26 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
     border-bottom: 2px solid #00ffff;
 }
 
 .panel-header h2 {
-    font-size: 0.95em;
+    font-size: 1.25em; /* INCREASED from 1.1em */
     color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
 }
 
 .control-btn {
     background: #ff4444;
     color: white;
     border: none;
-    padding: 4px 10px;
+    padding: 6px 12px; /* INCREASED padding */
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 0.75em;
+    font-size: 0.95em; /* INCREASED from 0.85em */
     transition: all 0.3s;
 }
 
@@ -132,25 +133,26 @@ body {
 
 /* Mode Section */
 .mode-section {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .mode-section h3 {
     color: #00ffff;
-    margin-bottom: 6px;
-    font-size: 0.85em;
+    margin-bottom: 8px;
+    font-size: 1.1em; /* INCREASED from 1.0em */
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
 }
 
 .mode-selector {
     display: grid;
-    gap: 6px;
+    gap: 8px;
 }
 
 .mode-btn {
     background: linear-gradient(135deg, #1a1a2e 0%, #2a2a4e 100%);
     border: 2px solid #4444aa;
     color: white;
-    padding: 6px;
+    padding: 8px; /* INCREASED from 6px */
     border-radius: 6px;
     cursor: pointer;
     text-align: left;
@@ -169,47 +171,48 @@ body {
 }
 
 .mode-icon {
-    font-size: 1.1em;
-    margin-bottom: 3px;
+    font-size: 1.4em; /* INCREASED from 1.3em */
+    margin-bottom: 4px;
 }
 
 .mode-name {
     font-weight: bold;
-    font-size: 0.85em;
-    margin-bottom: 2px;
+    font-size: 1.05em; /* INCREASED from 0.95em */
+    margin-bottom: 3px;
 }
 
 .mode-desc {
-    font-size: 0.68em;
+    font-size: 0.82em; /* INCREASED from 0.75em */
     color: #aaa;
 }
 
 /* Speed Section */
 .speed-section {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .speed-section h3 {
     color: #00ffff;
-    margin-bottom: 6px;
-    font-size: 0.85em;
+    margin-bottom: 8px;
+    font-size: 1.1em; /* INCREASED from 1.0em */
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
 }
 
 .speed-controls {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
+    gap: 6px;
 }
 
 .speed-btn {
     background: #2a2a4a;
     border: 2px solid #4444aa;
     color: white;
-    padding: 5px;
+    padding: 7px; /* INCREASED from 5px */
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 0.75em;
+    font-size: 0.95em; /* INCREASED from 0.85em */
     transition: all 0.3s;
 }
 
@@ -224,10 +227,10 @@ body {
     box-shadow: 0 0 12px rgba(0, 255, 0, 0.4);
 }
 
-/* User Input Section - NEW */
+/* User Input Section */
 .user-input-section {
-    margin-bottom: 10px;
-    padding: 8px;
+    margin-bottom: 12px;
+    padding: 10px; /* INCREASED from 8px */
     background: rgba(0, 255, 100, 0.08);
     border-radius: 6px;
     border: 2px solid #00ff66;
@@ -235,14 +238,15 @@ body {
 
 .user-input-section h3 {
     color: #00ff66;
-    margin-bottom: 6px;
-    font-size: 0.85em;
+    margin-bottom: 8px;
+    font-size: 1.1em; /* INCREASED from 1.0em */
+    text-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
 }
 
 .input-wrapper {
     display: flex;
-    gap: 5px;
-    margin-bottom: 5px;
+    gap: 6px;
+    margin-bottom: 6px;
 }
 
 .instruction-input {
@@ -250,10 +254,10 @@ body {
     background: rgba(0, 0, 0, 0.6);
     border: 2px solid #00ff66;
     color: #fff;
-    padding: 6px 8px;
+    padding: 8px 10px; /* INCREASED from 6px 8px */
     border-radius: 5px;
     font-family: 'Courier New', monospace;
-    font-size: 0.8em;
+    font-size: 1.0em; /* INCREASED from 0.9em */
     outline: none;
     transition: all 0.3s;
 }
@@ -273,12 +277,12 @@ body {
     border: 2px solid #00ff66;
     color: #000;
     font-weight: bold;
-    font-size: 1em;
-    padding: 6px 12px;
+    font-size: 1.1em; /* INCREASED from 1em */
+    padding: 8px 14px; /* INCREASED from 6px 12px */
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s;
-    min-width: 45px;
+    min-width: 50px;
 }
 
 .execute-btn:hover {
@@ -293,10 +297,10 @@ body {
 
 .error-message {
     color: #ff4444;
-    font-size: 0.7em;
-    min-height: 15px;
-    padding: 2px 4px;
-    margin-bottom: 4px;
+    font-size: 0.8em; /* INCREASED from 0.7em */
+    min-height: 18px;
+    padding: 4px 6px;
+    margin-bottom: 5px;
     background: rgba(255, 68, 68, 0.1);
     border-radius: 3px;
     border-left: 3px solid #ff4444;
@@ -307,8 +311,8 @@ body {
 }
 
 .template-hints {
-    margin-top: 6px;
-    padding: 5px;
+    margin-top: 8px;
+    padding: 6px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
     border-left: 3px solid #00ff66;
@@ -316,39 +320,40 @@ body {
 
 .hint-title {
     color: #00ff66;
-    font-size: 0.72em;
+    font-size: 0.88em; /* INCREASED from 0.8em */
     font-weight: bold;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 }
 
 .hint-item {
-    font-size: 0.65em;
+    font-size: 0.78em; /* INCREASED from 0.72em */
     color: #aaa;
-    margin: 2px 0;
+    margin: 3px 0;
     font-family: 'Courier New', monospace;
 }
 
 /* Instruction Section */
 .instruction-section {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .instruction-section h3 {
     color: #00ffff;
-    margin-bottom: 6px;
-    font-size: 0.85em;
+    margin-bottom: 8px;
+    font-size: 1.1em; /* INCREASED from 1.0em */
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
 }
 
 .instruction-grid {
     display: grid;
-    gap: 6px;
+    gap: 8px;
 }
 
 .instruction-btn {
     background: linear-gradient(135deg, #1a1a3e 0%, #2d2d5f 100%);
     border: 2px solid #4444ff;
     color: white;
-    padding: 6px;
+    padding: 8px; /* INCREASED from 6px */
     border-radius: 6px;
     cursor: pointer;
     text-align: left;
@@ -363,24 +368,24 @@ body {
 }
 
 .inst-code {
-    font-size: 0.8em;
+    font-size: 1.0em; /* INCREASED from 0.9em */
     font-weight: bold;
     color: #fff;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
     font-family: 'Courier New', monospace;
 }
 
 .inst-meaning {
-    font-size: 0.68em;
+    font-size: 0.82em; /* INCREASED from 0.75em */
     color: #aaaaff;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
 }
 
 .inst-flow {
-    font-size: 0.62em;
+    font-size: 0.78em; /* INCREASED from 0.7em */
     color: #00ff00;
     background: rgba(0, 255, 0, 0.1);
-    padding: 2px 5px;
+    padding: 3px 6px;
     border-radius: 3px;
     display: inline-block;
     font-family: 'Courier New', monospace;
@@ -389,8 +394,8 @@ body {
 
 /* Info Section */
 .info-section {
-    margin-bottom: 10px;
-    padding: 6px;
+    margin-bottom: 12px;
+    padding: 8px;
     background: rgba(0, 255, 255, 0.1);
     border-radius: 6px;
     border: 1px solid #00ffff;
@@ -398,13 +403,14 @@ body {
 
 .info-section h3 {
     color: #00ffff;
-    margin-bottom: 5px;
-    font-size: 0.85em;
+    margin-bottom: 6px;
+    font-size: 1.1em; /* INCREASED from 1.0em */
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
 }
 
 .status-line {
-    margin: 3px 0;
-    font-size: 0.72em;
+    margin: 4px 0;
+    font-size: 0.88em; /* INCREASED from 0.8em */
 }
 
 .status-line span {
@@ -414,33 +420,34 @@ body {
 
 /* Legend Section */
 .legend-section {
-    padding: 6px;
+    padding: 8px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 6px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .legend-section h3 {
     color: #00ffff;
-    margin-bottom: 5px;
-    font-size: 0.85em;
+    margin-bottom: 6px;
+    font-size: 1.1em; /* INCREASED from 1.0em */
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
 }
 
 .legend-items {
     display: grid;
-    gap: 4px;
+    gap: 5px;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 0.68em;
+    gap: 6px;
+    font-size: 0.82em; /* INCREASED from 0.75em */
 }
 
 .color-box {
-    width: 14px;
-    height: 14px;
+    width: 16px; /* INCREASED from 14px */
+    height: 16px;
     border-radius: 3px;
     border: 1px solid #fff;
     flex-shrink: 0;
@@ -448,7 +455,7 @@ body {
 
 /* Help Section */
 .help-section {
-    padding: 6px;
+    padding: 8px;
     background: rgba(255, 255, 0, 0.05);
     border-radius: 6px;
     border: 1px solid #ffff00;
@@ -456,18 +463,19 @@ body {
 
 .help-section h3 {
     color: #ffff00;
-    margin-bottom: 5px;
-    font-size: 0.85em;
+    margin-bottom: 6px;
+    font-size: 1.1em; /* INCREASED from 1.0em */
+    text-shadow: 0 0 8px rgba(255, 255, 0, 0.5);
 }
 
 .mode-comparison {
     display: grid;
-    gap: 5px;
+    gap: 6px;
 }
 
 .comparison-item {
-    font-size: 0.68em;
-    padding: 5px;
+    font-size: 0.82em; /* INCREASED from 0.75em */
+    padding: 6px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
     border-left: 3px solid #ffff00;
@@ -476,7 +484,7 @@ body {
 .comparison-item strong {
     color: #ffff00;
     display: block;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
 }
 
 /* Loading Overlay */
@@ -503,11 +511,13 @@ body {
 .loading-content h2 {
     color: #00ffff;
     margin-bottom: 15px;
+    font-size: 1.5em;
 }
 
 .loading-content p {
     margin-bottom: 25px;
     color: #aaa;
+    font-size: 1.1em;
 }
 
 .spinner {
@@ -525,48 +535,52 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* MOBILE RESPONSIVE - ENHANCED */
+/* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
-    /* Stage Banner - MINIMAL TOP SPACE */
+    /* Stage Banner */
     #stage-banner {
         position: fixed;
-        top: 2px;
-        left: 2px;
-        right: 2px;
-        padding: 3px 6px;
+        top: 3px;
+        left: 3px;
+        right: 3px;
+        padding: 6px 10px;
         z-index: 900;
-        max-height: 50px;
+        max-height: 110px; /* INCREASED to accommodate T-State indicator */
+        min-height: 55px;
     }
     
     .stage-title {
-        font-size: 0.7em;
-        margin-bottom: 1px;
+        font-size: 0.85em; /* Slightly smaller for mobile */
+        margin-bottom: 2px;
     }
     
     .stage-explanation {
-        font-size: 0.6em;
-        line-height: 1;
-        margin-bottom: 1px;
+        font-size: 0.7em; /* Readable but compact */
+        line-height: 1.2;
+        margin-bottom: 2px;
     }
     
     .micro-op-indicator {
-        margin-top: 2px;
-        padding: 2px 4px;
-    }
-    
-    .tstate-label {
-        font-size: 0.6em;
-    }
-    
-    .tstate-value {
+        margin-top: 3px;
+        padding: 3px 5px;
         font-size: 0.7em;
     }
     
-    .micro-op-text {
-        font-size: 0.55em;
+    .tstate-label {
+        font-size: 0.68em;
+        margin-right: 4px;
     }
     
-    /* Control Panel - Bottom collapsible */
+    .tstate-value {
+        font-size: 0.8em;
+        margin-right: 5px;
+    }
+    
+    .micro-op-text {
+        font-size: 0.62em;
+    }
+    
+    /* Control Panel - Bottom slide-up design */
     #control-panel {
         position: fixed;
         left: 5px;
@@ -574,276 +588,329 @@ body {
         bottom: 5px;
         top: auto;
         width: auto;
-        max-height: 48vh;
-        border-radius: 8px;
-        padding: 8px;
+        max-height: 45vh; /* Reduced to give more space for 3D view */
+        border-radius: 10px 10px 0 0; /* Rounded top corners */
+        padding: 10px;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
     
     .panel-header {
         margin-bottom: 8px;
         padding-bottom: 6px;
+        position: sticky;
+        top: 0;
+        background: rgba(15, 15, 30, 0.97);
+        z-index: 10;
     }
     
     .panel-header h2 {
-        font-size: 0.85em;
+        font-size: 1.0em;
     }
     
     .control-btn {
-        padding: 3px 8px;
-        font-size: 0.7em;
+        padding: 5px 10px;
+        font-size: 0.8em;
     }
     
     .mode-section,
     .speed-section,
+    .user-input-section,
     .instruction-section,
     .info-section,
     .legend-section,
     .help-section {
         margin-bottom: 8px;
+        padding: 6px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 6px;
     }
     
     .mode-section h3,
     .speed-section h3,
+    .user-input-section h3,
     .instruction-section h3,
     .info-section h3,
     .legend-section h3,
     .help-section h3 {
-        font-size: 0.78em;
-        margin-bottom: 5px;
+        font-size: 0.9em;
+        margin-bottom: 6px;
     }
     
     .mode-btn {
-        padding: 5px;
-    }
-    
-    .mode-icon {
-        font-size: 1.0em;
-    }
-    
-    .mode-name {
-        font-size: 0.78em;
-    }
-    
-    .mode-desc {
-        font-size: 0.62em;
-    }
-    
-    .speed-btn {
-        padding: 4px;
-        font-size: 0.7em;
-    }
-    
-    /* User Input Section - Mobile */
-    .user-input-section {
-        padding: 6px;
-        margin-bottom: 8px;
-    }
-    
-    .user-input-section h3 {
-        font-size: 0.78em;
+        padding: 8px; /* Larger touch target */
         margin-bottom: 5px;
     }
     
+    .mode-icon {
+        font-size: 1.2em;
+    }
+    
+    .mode-name {
+        font-size: 0.9em;
+        margin-bottom: 2px;
+    }
+    
+    .mode-desc {
+        font-size: 0.72em;
+        line-height: 1.1;
+    }
+    
+    .speed-controls {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+    }
+    
+    .speed-btn {
+        padding: 8px 5px; /* Better touch target */
+        font-size: 0.8em;
+        min-height: 36px;
+    }
+    
+    /* User Input Section - Mobile Optimized */
+    .user-input-section h3 {
+        font-size: 0.9em;
+        margin-bottom: 6px;
+    }
+    
+    .input-wrapper {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 6px;
+    }
+    
     .instruction-input {
-        font-size: 0.75em;
-        padding: 5px 6px;
+        font-size: 0.85em;
+        padding: 8px 10px; /* Larger touch-friendly padding */
+        min-height: 40px; /* Better touch target */
     }
     
     .execute-btn {
-        font-size: 0.9em;
-        padding: 5px 10px;
-        min-width: 40px;
+        font-size: 1.1em;
+        padding: 8px 14px; /* Better touch target */
+        min-width: 50px;
+        min-height: 40px;
     }
     
     .error-message {
-        font-size: 0.65em;
+        font-size: 0.75em;
+        padding: 4px;
+        margin-bottom: 5px;
+    }
+    
+    .template-hints {
+        padding: 6px;
     }
     
     .hint-title {
-        font-size: 0.68em;
+        font-size: 0.75em;
+        margin-bottom: 4px;
     }
     
     .hint-item {
-        font-size: 0.62em;
+        font-size: 0.7em;
+        line-height: 1.3;
+        margin-bottom: 2px;
+    }
+    
+    .instruction-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
+        gap: 6px;
     }
     
     .instruction-btn {
-        padding: 5px;
+        padding: 8px; /* Better touch target */
+        min-height: 75px;
     }
     
     .inst-code {
-        font-size: 0.75em;
+        font-size: 0.85em;
+        margin-bottom: 3px;
     }
     
     .inst-meaning {
-        font-size: 0.62em;
+        font-size: 0.7em;
+        line-height: 1.2;
     }
     
     .inst-flow {
-        font-size: 0.58em;
-    }
-    
-    .status-line {
-        font-size: 0.68em;
-        margin: 2px 0;
-    }
-    
-    .legend-item {
-        font-size: 0.62em;
-    }
-    
-    .color-box {
-        width: 12px;
-        height: 12px;
-    }
-    
-    .comparison-item {
-        font-size: 0.62em;
-        padding: 4px;
-    }
-}
-
-/* EXTRA SMALL MOBILE - OPTIMIZED */
-@media (max-width: 480px) {
-    #stage-banner {
-        padding: 2px 5px;
-        max-height: 45px;
-    }
-    
-    .stage-title {
         font-size: 0.65em;
     }
     
+    .status-line {
+        font-size: 0.75em;
+        margin: 3px 0;
+        padding: 2px 0;
+    }
+    
+    .legend-items {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* 2 columns for better space usage */
+        gap: 5px;
+    }
+    
+    .legend-item {
+        font-size: 0.7em;
+        padding: 3px;
+    }
+    
+    .color-box {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .comparison-item {
+        font-size: 0.72em;
+        padding: 6px;
+        line-height: 1.3;
+    }
+}
+
+/* EXTRA SMALL MOBILE (Portrait phones) */
+@media (max-width: 480px) {
+    #stage-banner {
+        padding: 5px 8px;
+        max-height: 100px;
+        top: 2px;
+        left: 2px;
+        right: 2px;
+    }
+    
+    .stage-title {
+        font-size: 0.75em;
+    }
+    
     .stage-explanation {
-        font-size: 0.55em;
+        font-size: 0.65em;
     }
     
     .micro-op-indicator {
-        padding: 2px 3px;
+        padding: 2px 4px;
     }
     
-    .tstate-label {
-        font-size: 0.55em;
+    .tstate-label,
+    .tstate-value,
+    .micro-op-text {
+        font-size: 0.6em;
     }
     
+    #control-panel {
+        max-height: 42vh; /* Even less height for small screens */
+        padding: 8px;
+        left: 2px;
+        right: 2px;
+        bottom: 2px;
+    }
+    
+    .panel-header h2 {
+        font-size: 0.9em;
+    }
+    
+    .mode-section,
+    .speed-section,
+    .user-input-section,
+    .instruction-section {
+        margin-bottom: 6px;
+    }
+    
+    .instruction-grid {
+        grid-template-columns: 1fr; /* Single column on very small screens */
+        gap: 5px;
+    }
+    
+    .instruction-btn {
+        min-height: 65px;
+        padding: 6px;
+    }
+    
+    /* Hide less critical sections on very small screens */
+    .help-section {
+        display: none;
+    }
+    
+    .legend-section {
+        margin-bottom: 5px;
+    }
+}
+
+/* LANDSCAPE MOBILE (Better side-by-side layout) */
+@media (max-width: 968px) and (orientation: landscape) {
+    #stage-banner {
+        top: 3px;
+        left: 3px;
+        right: 52%; /* Leave more space for control panel */
+        padding: 4px 8px;
+        max-height: 80px; /* Taller to accommodate T-State */
+        overflow-y: auto;
+    }
+    
+    .stage-title {
+        font-size: 0.75em;
+    }
+    
+    .stage-explanation {
+        font-size: 0.65em;
+        line-height: 1.1;
+    }
+    
+    .micro-op-indicator {
+        padding: 2px 4px;
+        margin-top: 2px;
+    }
+    
+    .tstate-label,
     .tstate-value {
         font-size: 0.65em;
     }
     
     .micro-op-text {
-        font-size: 0.5em;
-    }
-    
-    #control-panel {
-        max-height: 45vh;
-        padding: 6px;
-    }
-    
-    .panel-header h2 {
-        font-size: 0.78em;
-    }
-    
-    .mode-section h3,
-    .speed-section h3,
-    .instruction-section h3,
-    .info-section h3,
-    .legend-section h3,
-    .help-section h3 {
-        font-size: 0.72em;
-    }
-    
-    .mode-icon {
-        font-size: 0.95em;
-    }
-    
-    .mode-name {
-        font-size: 0.72em;
-    }
-    
-    .mode-desc {
-        font-size: 0.58em;
-    }
-    
-    .speed-controls {
-        gap: 4px;
-    }
-    
-    .speed-btn {
-        padding: 3px;
-        font-size: 0.65em;
-    }
-    
-    .instruction-btn {
-        padding: 4px;
-    }
-    
-    .inst-code {
-        font-size: 0.7em;
-    }
-    
-    .inst-meaning {
-        font-size: 0.58em;
-    }
-    
-    .inst-flow {
-        font-size: 0.55em;
-    }
-    
-    .status-line {
-        font-size: 0.62em;
-    }
-    
-    .legend-item {
-        font-size: 0.58em;
-        gap: 4px;
-    }
-    
-    .color-box {
-        width: 10px;
-        height: 10px;
-    }
-    
-    .comparison-item {
-        font-size: 0.58em;
-    }
-}
-
-/* LANDSCAPE MOBILE */
-@media (max-width: 768px) and (orientation: landscape) {
-    #stage-banner {
-        top: 2px;
-        left: 2px;
-        right: 50%;
-        padding: 3px 6px;
-        max-height: 40px;
-    }
-    
-    .stage-title {
-        font-size: 0.65em;
-    }
-    
-    .stage-explanation {
-        font-size: 0.55em;
+        font-size: 0.6em;
     }
     
     #control-panel {
         position: fixed;
-        right: 5px;
-        top: 5px;
-        bottom: 5px;
+        right: 3px;
+        top: 3px;
+        bottom: 3px;
         left: auto;
-        width: 48%;
+        width: 50%; /* Half screen */
         max-height: none;
+        border-radius: 8px;
+    }
+    
+    .panel-header h2 {
+        font-size: 0.95em;
+    }
+    
+    .mode-section,
+    .speed-section,
+    .user-input-section,
+    .instruction-section,
+    .info-section,
+    .legend-section {
+        margin-bottom: 6px;
+    }
+    
+    .instruction-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+    }
+    
+    .instruction-btn {
+        min-height: 60px;
+        padding: 5px;
     }
 }
 
 /* Scrollbar Styling */
 #control-panel::-webkit-scrollbar {
-    width: 4px;
+    width: 6px; /* Slightly wider for easier grabbing on mobile */
 }
 
 #control-panel::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
 }
 
 #control-panel::-webkit-scrollbar-thumb {
@@ -851,7 +918,40 @@ body {
     border-radius: 3px;
 }
 
+#control-panel::-webkit-scrollbar-thumb:hover {
+    background: #00cccc;
+}
+
 /* Smooth Scrolling */
 #control-panel {
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Smooth iOS scrolling */
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+    /* Remove hover effects on touch devices */
+    .mode-btn:hover,
+    .speed-btn:hover,
+    .instruction-btn:hover,
+    .control-btn:hover,
+    .execute-btn:hover {
+        transform: none;
+    }
+    
+    /* Add active/press states instead */
+    .mode-btn:active,
+    .speed-btn:active,
+    .instruction-btn:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+    }
+    
+    /* Ensure minimum touch target sizes (44x44px recommended) */
+    .speed-btn,
+    .mode-btn,
+    .control-btn,
+    .execute-btn {
+        min-height: 44px;
+    }
 }

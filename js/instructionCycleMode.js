@@ -21,6 +21,10 @@ export class InstructionCycleMode {
             return;
         }
 
+        // Hide T-State indicator in Instruction Cycle mode
+        const indicator = document.getElementById('micro-op-indicator');
+        if (indicator) indicator.style.display = 'none';
+
         // Safety reset before instruction starts
         this.cpuModel.resetAll();
 

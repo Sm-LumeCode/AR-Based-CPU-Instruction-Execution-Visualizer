@@ -1,6 +1,6 @@
 /**
- * CPU 3D Model - MOBILE OPTIMIZED
- * Smaller, compact blocks for better mobile viewing
+ * CPU 3D Model - IMPROVED VERSION
+ * Larger, centered cubes with bigger, clearer labels
  */
 
 export class CPUModel {
@@ -12,13 +12,13 @@ export class CPUModel {
         // Mobile detection
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-        // BIGGER scale for better visibility - 40% increase
-        this.scaleFactor = isMobile ? 0.35 : 0.45;
-        this.xOffset = 0; // CENTER the model (was -0.6 / -0.75)
+        // SIGNIFICANTLY BIGGER scale for better visibility - 60% increase from original
+        this.scaleFactor = isMobile ? 0.55 : 0.7;
+        this.xOffset = -0.55; // Move to the left
     }
 
     build() {
-        const baseY = 0;
+        const baseY = -0.4; // Move everything down
 
         this.buildProgramCounter(baseY);
         this.buildInstructionRegister(baseY);
@@ -31,29 +31,46 @@ export class CPUModel {
         this.buildBuses();
     }
 
-    createLabeledTexture(label, color, width = 512, height = 256) {
+    createLabeledTexture(label, color, width = 512, height = 512) {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
 
         canvas.width = width;
         canvas.height = height;
 
-        context.fillStyle = this.colorToHex(color);
+        // Background with gradient for better visibility
+        const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, this.colorToHex(color));
+        gradient.addColorStop(1, this.adjustBrightness(color, -20));
+        context.fillStyle = gradient;
         context.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Larger font for better mobile readability
-        const fontSize = width > 256 ? 64 : 52;
-        context.font = `Bold ${fontSize}px Arial`;
-        context.fillStyle = '#000000';
+        // MUCH LARGER font for better mobile readability
+        const fontSize = Math.floor(width * 0.18); // 18% of canvas width
+        context.font = `Bold ${fontSize}px Arial, sans-serif`;
+        context.fillStyle = '#090909';  // White text for better contrast
+        context.strokeStyle = '#fcfbfb';  // Black outline
+        context.lineWidth = fontSize * 0.08;  // Outline width
         context.textAlign = 'center';
         context.textBaseline = 'middle';
+        
+        // Draw text with outline for maximum visibility
+        context.strokeText(label, canvas.width / 2, canvas.height / 2);
         context.fillText(label, canvas.width / 2, canvas.height / 2);
 
+        // Thick border for definition
         context.strokeStyle = '#000000';
-        context.lineWidth = 10;
-        context.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
+        context.lineWidth = 12;
+        context.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
 
         return new THREE.CanvasTexture(canvas);
+    }
+
+    adjustBrightness(color, percent) {
+        const r = Math.max(0, Math.min(255, ((color >> 16) & 0xff) + percent));
+        const g = Math.max(0, Math.min(255, ((color >> 8) & 0xff) + percent));
+        const b = Math.max(0, Math.min(255, (color & 0xff) + percent));
+        return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
     }
 
     colorToHex(color) {
@@ -61,25 +78,25 @@ export class CPUModel {
     }
 
     buildProgramCounter(baseY) {
-        const geometry = new THREE.BoxGeometry(
-            0.35 * this.scaleFactor,
-            0.24 * this.scaleFactor,
-            0.18 * this.scaleFactor
-        );
-        const texture = this.createLabeledTexture('PC', 0x00ffff);
+        // PERFECTLY SQUARE cube
+        const size = 0.28 * this.scaleFactor;
+        const geometry = new THREE.BoxGeometry(size, size, size);
+        
+        const texture = this.createLabeledTexture('PC', 0x00CCFF);
         const materials = Array(6).fill(null).map(() =>
             new THREE.MeshStandardMaterial({
                 map: texture,
-                emissive: 0x003333,
-                metalness: 0.5,
-                roughness: 0.5
+                emissive: 0x003344,
+                emissiveIntensity: 0.4,
+                metalness: 0.6,
+                roughness: 0.4
             })
         );
 
         const pc = new THREE.Mesh(geometry, materials);
         pc.position.set(
             (this.xOffset - 1.0) * this.scaleFactor,
-            baseY + 1.4 * this.scaleFactor,
+            baseY + 1.5 * this.scaleFactor,
             0
         );
         pc.userData.name = 'PC';
@@ -89,18 +106,18 @@ export class CPUModel {
     }
 
     buildInstructionRegister(baseY) {
-        const geometry = new THREE.BoxGeometry(
-            0.38 * this.scaleFactor,
-            0.24 * this.scaleFactor,
-            0.18 * this.scaleFactor
-        );
-        const texture = this.createLabeledTexture('IR', 0x4444ff);
+        // PERFECTLY SQUARE cube
+        const size = 0.30 * this.scaleFactor;
+        const geometry = new THREE.BoxGeometry(size, size, size);
+        
+        const texture = this.createLabeledTexture('IR', 0x4466FF);
         const materials = Array(6).fill(null).map(() =>
             new THREE.MeshStandardMaterial({
                 map: texture,
-                emissive: 0x000033,
-                metalness: 0.5,
-                roughness: 0.5
+                emissive: 0x001144,
+                emissiveIntensity: 0.4,
+                metalness: 0.6,
+                roughness: 0.4
             })
         );
 
@@ -117,18 +134,18 @@ export class CPUModel {
     }
 
     buildMemoryAddressRegister(baseY) {
-        const geometry = new THREE.BoxGeometry(
-            0.35 * this.scaleFactor,
-            0.20 * this.scaleFactor,
-            0.16 * this.scaleFactor
-        );
-        const texture = this.createLabeledTexture('MAR', 0xff6600, 512, 256);
+        // PERFECTLY SQUARE cube
+        const size = 0.26 * this.scaleFactor;
+        const geometry = new THREE.BoxGeometry(size, size, size);
+        
+        const texture = this.createLabeledTexture('MAR', 0xFF7700);
         const materials = Array(6).fill(null).map(() =>
             new THREE.MeshStandardMaterial({
                 map: texture,
-                emissive: 0x331100,
-                metalness: 0.5,
-                roughness: 0.5
+                emissive: 0x442200,
+                emissiveIntensity: 0.4,
+                metalness: 0.6,
+                roughness: 0.4
             })
         );
 
@@ -145,25 +162,25 @@ export class CPUModel {
     }
 
     buildMemoryDataRegister(baseY) {
-        const geometry = new THREE.BoxGeometry(
-            0.35 * this.scaleFactor,
-            0.20 * this.scaleFactor,
-            0.16 * this.scaleFactor
-        );
-        const texture = this.createLabeledTexture('MDR', 0xff3366, 512, 256);
+        // PERFECTLY SQUARE cube
+        const size = 0.26 * this.scaleFactor;
+        const geometry = new THREE.BoxGeometry(size, size, size);
+        
+        const texture = this.createLabeledTexture('MDR', 0xFF4477);
         const materials = Array(6).fill(null).map(() =>
             new THREE.MeshStandardMaterial({
                 map: texture,
-                emissive: 0x330011,
-                metalness: 0.5,
-                roughness: 0.5
+                emissive: 0x441122,
+                emissiveIntensity: 0.4,
+                metalness: 0.6,
+                roughness: 0.4
             })
         );
 
         const mdr = new THREE.Mesh(geometry, materials);
         mdr.position.set(
             (this.xOffset - 1.0) * this.scaleFactor,
-            baseY + 0.1 * this.scaleFactor,
+            baseY + 0.0 * this.scaleFactor,
             0
         );
         mdr.userData.name = 'MDR';
@@ -173,18 +190,18 @@ export class CPUModel {
     }
 
     buildControlUnit(baseY) {
-        const geometry = new THREE.BoxGeometry(
-            0.48 * this.scaleFactor,
-            0.32 * this.scaleFactor,
-            0.22 * this.scaleFactor
-        );
-        const texture = this.createLabeledTexture('CU', 0xff9900);
+        // PERFECTLY SQUARE cube - slightly larger for importance
+        const size = 0.38 * this.scaleFactor;
+        const geometry = new THREE.BoxGeometry(size, size, size);
+        
+        const texture = this.createLabeledTexture('CU', 0xFFAA00);
         const materials = Array(6).fill(null).map(() =>
             new THREE.MeshStandardMaterial({
                 map: texture,
-                emissive: 0x331100,
-                metalness: 0.5,
-                roughness: 0.5
+                emissive: 0x442200,
+                emissiveIntensity: 0.4,
+                metalness: 0.6,
+                roughness: 0.4
             })
         );
 
@@ -212,46 +229,44 @@ export class CPUModel {
         this.valueDisplays = {};
 
         const registers = ['R0', 'R1', 'R2', 'R3'];
+        const regSize = 0.22 * this.scaleFactor;
+        
         registers.forEach((regName, index) => {
-            const geometry = new THREE.BoxGeometry(
-                0.26 * this.scaleFactor,
-                0.17 * this.scaleFactor,
-                0.14 * this.scaleFactor
-            );
-            const texture = this.createLabeledTexture(regName, 0x00ff00, 256, 256);
+            // PERFECTLY SQUARE cubes for registers
+            const geometry = new THREE.BoxGeometry(regSize, regSize, regSize);
+            
+            const texture = this.createLabeledTexture(regName, 0x00FF00);
             const materials = Array(6).fill(null).map(() =>
                 new THREE.MeshStandardMaterial({
                     map: texture,
-                    emissive: 0x003300,
-                    metalness: 0.5,
-                    roughness: 0.5
+                    emissive: 0x004400,
+                    emissiveIntensity: 0.4,
+                    metalness: 0.6,
+                    roughness: 0.4
                 })
             );
 
             const register = new THREE.Mesh(geometry, materials);
-            register.position.y = index * 0.22 * this.scaleFactor;
+            register.position.y = index * 0.30 * this.scaleFactor;
             register.userData.name = regName;
 
             registerGroup.add(register);
             this.components[regName] = register;
 
-            // --- VALUE DISPLAY BOX ---
-            // Small white box to the right of the register
-            const valGeo = new THREE.BoxGeometry(
-                0.15 * this.scaleFactor,
-                0.15 * this.scaleFactor,
-                0.05 * this.scaleFactor
-            );
+            // --- LARGER VALUE DISPLAY BOX ---
+            const valSize = 0.18* this.scaleFactor;
+            const valGeo = new THREE.BoxGeometry(valSize, valSize, valSize * 0.4);
+            
             // Default value '0'
             const valTex = this.createValueTexture('0');
             const valMat = new THREE.MeshBasicMaterial({ map: valTex, color: 0xffffff });
             const valMesh = new THREE.Mesh(valGeo, valMat);
 
-            // Position it to the right of the register
+            // Position it to the right of the register (further away to avoid overlap)
             valMesh.position.set(
-                0.25 * this.scaleFactor, // x offset from register center
-                index * 0.22 * this.scaleFactor, // same Y as register
-                0.06 * this.scaleFactor // slightly in front
+                0.45 * this.scaleFactor, // x offset from register center (increased from 0.30)
+                index * 0.30 * this.scaleFactor, // same Y as register
+                0.08 * this.scaleFactor // slightly in front
             );
 
             registerGroup.add(valMesh);
@@ -265,27 +280,33 @@ export class CPUModel {
     createValueTexture(text) {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        canvas.width = 128;
-        canvas.height = 128;
+        canvas.width = 256;
+        canvas.height = 256;
 
-        // Background
-        context.fillStyle = '#ffffff';
+        // White background with subtle gradient
+        const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#FFFFFF');
+        gradient.addColorStop(1, '#F0F0F0');
+        context.fillStyle = gradient;
         context.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Border
+        // Thick border
         context.strokeStyle = '#000000';
-        context.lineWidth = 10;
-        context.strokeRect(0, 0, canvas.width, canvas.height);
+        context.lineWidth = 12;
+        context.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
 
-        // Text
-        context.font = 'Bold 80px Arial';
+        // MUCH LARGER text
+        context.font = 'Bold 140px Arial';
         context.fillStyle = '#000000';
+        context.strokeStyle = '#CCCCCC';
+        context.lineWidth = 4;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
+        
+        context.strokeText(text, canvas.width / 2, canvas.height / 2);
         context.fillText(text, canvas.width / 2, canvas.height / 2);
 
-        const tex = new THREE.CanvasTexture(canvas);
-        return tex;
+        return new THREE.CanvasTexture(canvas);
     }
 
     updateRegisterDisplay(regName, value) {
@@ -297,20 +318,22 @@ export class CPUModel {
     }
 
     buildALU(baseY) {
-        const geometry = new THREE.CylinderGeometry(
-            0.20 * this.scaleFactor,
-            0.20 * this.scaleFactor,
-            0.32 * this.scaleFactor,
-            6
+        // PERFECTLY SQUARE cube with label (like other components)
+        const size = 0.35 * this.scaleFactor;
+        const geometry = new THREE.BoxGeometry(size, size, size);
+        
+        const texture = this.createLabeledTexture('ALU', 0xFF0000);
+        const materials = Array(6).fill(null).map(() =>
+            new THREE.MeshStandardMaterial({
+                map: texture,
+                emissive: 0x440000,
+                emissiveIntensity: 0.4,
+                metalness: 0.6,
+                roughness: 0.4
+            })
         );
-        const material = new THREE.MeshStandardMaterial({
-            color: 0xff0000,
-            emissive: 0x330000,
-            metalness: 0.5,
-            roughness: 0.5
-        });
 
-        const alu = new THREE.Mesh(geometry, material);
+        const alu = new THREE.Mesh(geometry, materials);
         alu.position.set(
             this.xOffset * this.scaleFactor,
             baseY + 0.2 * this.scaleFactor,
@@ -320,33 +343,32 @@ export class CPUModel {
 
         this.scene.add(alu);
         this.components.ALU = alu;
-
-        const sprite = this.createTextSprite('ALU', 0xff0000);
-        sprite.position.copy(alu.position);
-        sprite.scale.set(0.10, 0.10, 1);
-        this.scene.add(sprite);
     }
 
     buildMemory(baseY) {
+        // Larger memory block - PERFECTLY SQUARE in width/height
+        const size = 0.55 * this.scaleFactor;
         const geometry = new THREE.BoxGeometry(
-            0.55 * this.scaleFactor,
-            0.85 * this.scaleFactor,
-            0.18 * this.scaleFactor
+            size * 0.8,
+            size * 1.3,
+            size * 0.3
         );
-        const texture = this.createLabeledTexture('MEMORY', 0x9900ff, 512, 512);
+        
+        const texture = this.createLabeledTexture('MEM', 0xAA00FF, 512, 768);
         const materials = Array(6).fill(null).map(() =>
             new THREE.MeshStandardMaterial({
                 map: texture,
-                emissive: 0x220033,
-                metalness: 0.5,
-                roughness: 0.5
+                emissive: 0x330044,
+                emissiveIntensity: 0.4,
+                metalness: 0.6,
+                roughness: 0.4
             })
         );
 
         const memory = new THREE.Mesh(geometry, materials);
         memory.position.set(
             (this.xOffset - 1.0) * this.scaleFactor,
-            baseY - 0.5 * this.scaleFactor,
+            baseY - 0.7* this.scaleFactor,
             0
         );
         memory.userData.name = 'Memory';
@@ -359,47 +381,56 @@ export class CPUModel {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
 
-        canvas.width = 256;
-        canvas.height = 128;
+        canvas.width = 512;
+        canvas.height = 256;
 
+        // Background
         context.fillStyle = this.colorToHex(backgroundColor);
         context.fillRect(0, 0, canvas.width, canvas.height);
 
-        context.font = 'Bold 60px Arial';
-        context.fillStyle = '#000000';
+        // LARGER text
+        context.font = 'Bold 120px Arial';
+        context.fillStyle = '#FFFFFF';
+        context.strokeStyle = '#000000';
+        context.lineWidth = 10;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
+        
+        context.strokeText(text, canvas.width / 2, canvas.height / 2);
         context.fillText(text, canvas.width / 2, canvas.height / 2);
 
+        // Border
         context.strokeStyle = '#000000';
-        context.lineWidth = 8;
-        context.strokeRect(4, 4, canvas.width - 8, canvas.height - 8);
+        context.lineWidth = 12;
+        context.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
 
         const texture = new THREE.CanvasTexture(canvas);
         return new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
     }
 
     buildBuses() {
-        const leftX = (this.xOffset - 1.15) * this.scaleFactor;
-        const rightX = (this.xOffset + 1.15) * this.scaleFactor;
-        const busY = -0.95 * this.scaleFactor;
+        // Move buses to the right by adding offset
+        const busRightOffset = 0.5; // Adjust this value to move more/less right
+        const leftX = (this.xOffset - 1.25 + busRightOffset) * this.scaleFactor;
+        const rightX = (this.xOffset + 1.25 + busRightOffset) * this.scaleFactor;
+        const busY = -1.1 * this.scaleFactor;
 
         this.buses.dataBus = this.createBus(
-            new THREE.Vector3(leftX, busY, -0.25 * this.scaleFactor),
-            new THREE.Vector3(rightX, busY, -0.25 * this.scaleFactor),
-            0x00ff00
+            new THREE.Vector3(leftX, busY, -0.3 * this.scaleFactor),
+            new THREE.Vector3(rightX, busY, -0.3 * this.scaleFactor),
+            0x00FF00
         );
 
         this.buses.addressBus = this.createBus(
             new THREE.Vector3(leftX, busY, 0),
             new THREE.Vector3(rightX, busY, 0),
-            0x0000ff
+            0x0000FF
         );
 
         this.buses.controlBus = this.createBus(
-            new THREE.Vector3(leftX, busY, 0.25 * this.scaleFactor),
-            new THREE.Vector3(rightX, busY, 0.25 * this.scaleFactor),
-            0xffff00
+            new THREE.Vector3(leftX, busY, 0.3 * this.scaleFactor),
+            new THREE.Vector3(rightX, busY, 0.3 * this.scaleFactor),
+            0xFFFF00
         );
     }
 
@@ -408,16 +439,16 @@ export class CPUModel {
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         const material = new THREE.LineBasicMaterial({
             color: color,
-            linewidth: 2,
+            linewidth: 3,
             transparent: true,
-            opacity: 0.5
+            opacity: 0.6
         });
         const bus = new THREE.Line(geometry, material);
         this.scene.add(bus);
         return bus;
     }
 
-    highlightComponent(componentName, color = 0x00ffff) {
+    highlightComponent(componentName, color = 0x00FFFF) {
         const component = this.components[componentName];
         if (!component) return;
 
@@ -426,13 +457,13 @@ export class CPUModel {
                 if (!mat.userData.originalEmissive)
                     mat.userData.originalEmissive = mat.emissive.getHex();
                 mat.emissive.setHex(color);
-                mat.emissiveIntensity = 1.8; // Brighter for mobile
+                mat.emissiveIntensity = 2.0; // Brighter highlight
             });
         } else {
             if (!component.material.userData.originalEmissive)
                 component.material.userData.originalEmissive = component.material.emissive.getHex();
             component.material.emissive.setHex(color);
-            component.material.emissiveIntensity = 1.8;
+            component.material.emissiveIntensity = 2.0;
         }
     }
 
@@ -444,13 +475,13 @@ export class CPUModel {
             component.material.forEach(mat => {
                 if (mat.userData.originalEmissive !== undefined) {
                     mat.emissive.setHex(mat.userData.originalEmissive);
-                    mat.emissiveIntensity = 0.3;
+                    mat.emissiveIntensity = 0.4;
                 }
             });
         } else {
             if (component.material.userData.originalEmissive !== undefined) {
                 component.material.emissive.setHex(component.material.userData.originalEmissive);
-                component.material.emissiveIntensity = 0.3;
+                component.material.emissiveIntensity = 0.4;
             }
         }
     }
