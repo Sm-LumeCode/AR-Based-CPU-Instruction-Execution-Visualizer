@@ -1,45 +1,84 @@
+/* ========================================================================
+   AR CPU Micro-Operation Visualizer — FULLY RESPONSIVE
+   Breakpoints:
+     • Phone portrait   : ≤ 480px
+     • Phone landscape / small tablet : 481–768px
+     • Tablet / small laptop : 769–1024px
+     • Medium laptop    : 1025–1366px
+     • Large desktop    : 1367–1920px
+     • Extra-large      : > 1920px
+   ======================================================================== */
+
+/* ---------- CSS Custom Properties ---------- */
+:root {
+    --panel-width: 340px;
+    --panel-bg: rgba(15, 15, 30, 0.97);
+    --accent: #00ffff;
+    --accent-green: #00ff00;
+    --accent-yellow: #ffff00;
+    --accent-red: #ff4444;
+    --accent-input: #00ff66;
+    --font-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-mono: 'Courier New', monospace;
+    --radius: 8px;
+    --gap: 8px;
+}
+
+/* ---------- Reset ---------- */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden;
-    background: #000;
+html {
+    font-size: 16px;
+    /* base for rem */
+    -webkit-text-size-adjust: 100%;
 }
 
+body {
+    font-family: var(--font-base);
+    overflow: hidden;
+    background: #000;
+    min-height: 100vh;
+    min-height: 100dvh;
+    /* dynamic viewport on mobile browsers */
+}
+
+/* ---------- AR Container ---------- */
 #ar-container {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     z-index: 1;
 }
 
-/* Stage Banner - BIGGER, CLEARER */
+/* ============================================================
+   STAGE BANNER  (top overlay)
+   ============================================================ */
 #stage-banner {
     position: fixed;
     top: 5px;
     left: 5px;
-    right: 350px; /* Desktop: Leave space for wider control panel */
+    right: calc(var(--panel-width) + 10px);
+    /* leave room for panel */
     background: rgba(0, 0, 0, 0.9);
-    border: 2px solid #00ff00;
-    border-radius: 8px;
+    border: 2px solid var(--accent-green);
+    border-radius: var(--radius);
     padding: 10px 15px;
     z-index: 800;
     text-align: center;
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-    max-height: 140px; /* INCREASED from 90px to prevent overlap */
-    min-height: 60px; /* Added minimum height */
+    max-height: 110px;
+    /* Reduced from 140px to avoid block collision */
+    min-height: 60px;
+    overflow: hidden;
 }
 
 .stage-title {
-    font-size: 1.1em; /* INCREASED from 0.75em */
+    font-size: clamp(0.8rem, 1.1vw + 0.4rem, 1.25rem);
     font-weight: bold;
-    color: #00ff00;
+    color: var(--accent-green);
     margin-bottom: 5px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -48,7 +87,7 @@ body {
 }
 
 .stage-explanation {
-    font-size: 0.9em; /* INCREASED from 0.65em */
+    font-size: clamp(0.7rem, 0.8vw + 0.3rem, 1rem);
     color: #fff;
     line-height: 1.3;
     margin-bottom: 5px;
@@ -59,44 +98,49 @@ body {
     padding: 5px 8px;
     background: rgba(255, 255, 0, 0.15);
     border-radius: 5px;
-    border: 2px solid #ffff00;
+    border: 2px solid var(--accent-yellow);
 }
 
 .tstate-label {
-    color: #ffff00;
+    color: var(--accent-yellow);
     font-weight: bold;
     margin-right: 6px;
-    font-size: 0.85em; /* INCREASED from 0.65em */
+    font-size: clamp(0.65rem, 0.7vw + 0.3rem, 0.9rem);
 }
 
 .tstate-value {
-    color: #00ffff;
+    color: var(--accent);
     font-weight: bold;
-    font-size: 1.0em; /* INCREASED from 0.75em */
+    font-size: clamp(0.75rem, 0.8vw + 0.3rem, 1.05rem);
     margin-right: 8px;
     text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
 }
 
 .micro-op-text {
     color: #fff;
-    font-size: 0.8em; /* INCREASED from 0.6em */
+    font-size: clamp(0.6rem, 0.65vw + 0.25rem, 0.85rem);
 }
 
-/* Control Panel - BIGGER */
+/* ============================================================
+   CONTROL PANEL  (right sidebar — default/desktop)
+   ============================================================ */
 #control-panel {
     position: fixed;
     right: 5px;
     top: 5px;
     bottom: 5px;
-    width: 340px; /* INCREASED from 310px */
-    background: rgba(15, 15, 30, 0.97);
-    border: 2px solid #00ffff;
+    width: var(--panel-width);
+    background: var(--panel-bg);
+    border: 2px solid var(--accent);
     border-radius: 10px;
     padding: 12px;
     color: #fff;
     z-index: 1000;
     overflow-y: auto;
+    overflow-x: hidden;
     box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
 
 .panel-header {
@@ -105,25 +149,27 @@ body {
     align-items: center;
     margin-bottom: 12px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #00ffff;
+    border-bottom: 2px solid var(--accent);
 }
 
 .panel-header h2 {
-    font-size: 1.25em; /* INCREASED from 1.1em */
-    color: #00ffff;
+    font-size: clamp(1rem, 1.1vw + 0.4rem, 1.35rem);
+    color: var(--accent);
     text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+    white-space: nowrap;
 }
 
 .control-btn {
-    background: #ff4444;
+    background: var(--accent-red);
     color: white;
     border: none;
-    padding: 6px 12px; /* INCREASED padding */
+    padding: 6px 12px;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 0.95em; /* INCREASED from 0.85em */
+    font-size: clamp(0.8rem, 0.85vw + 0.3rem, 1rem);
     transition: all 0.3s;
+    white-space: nowrap;
 }
 
 .control-btn:hover {
@@ -131,28 +177,45 @@ body {
     transform: translateY(-1px);
 }
 
-/* Mode Section */
+/* ---------- Section headings ---------- */
+.mode-section h3,
+.speed-section h3,
+.user-input-section h3,
+.instruction-section h3,
+.info-section h3,
+.legend-section h3,
+.help-section h3 {
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: clamp(0.85rem, 0.9vw + 0.3rem, 1.15rem);
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+}
+
+.user-input-section h3 {
+    color: var(--accent-input);
+    text-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
+}
+
+.help-section h3 {
+    color: var(--accent-yellow);
+    text-shadow: 0 0 8px rgba(255, 255, 0, 0.5);
+}
+
+/* ---------- Mode Section ---------- */
 .mode-section {
     margin-bottom: 12px;
 }
 
-.mode-section h3 {
-    color: #00ffff;
-    margin-bottom: 8px;
-    font-size: 1.1em; /* INCREASED from 1.0em */
-    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
-}
-
 .mode-selector {
     display: grid;
-    gap: 8px;
+    gap: var(--gap);
 }
 
 .mode-btn {
     background: linear-gradient(135deg, #1a1a2e 0%, #2a2a4e 100%);
     border: 2px solid #4444aa;
     color: white;
-    padding: 8px; /* INCREASED from 6px */
+    padding: 8px;
     border-radius: 6px;
     cursor: pointer;
     text-align: left;
@@ -165,37 +228,30 @@ body {
 }
 
 .mode-btn.active {
-    border-color: #00ff00;
+    border-color: var(--accent-green);
     background: linear-gradient(135deg, #1a3a1a 0%, #2a5a2a 100%);
     box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
 }
 
 .mode-icon {
-    font-size: 1.4em; /* INCREASED from 1.3em */
+    font-size: clamp(1.1rem, 1.2vw + 0.4rem, 1.5rem);
     margin-bottom: 4px;
 }
 
 .mode-name {
     font-weight: bold;
-    font-size: 1.05em; /* INCREASED from 0.95em */
+    font-size: clamp(0.85rem, 0.9vw + 0.3rem, 1.1rem);
     margin-bottom: 3px;
 }
 
 .mode-desc {
-    font-size: 0.82em; /* INCREASED from 0.75em */
+    font-size: clamp(0.7rem, 0.72vw + 0.25rem, 0.85rem);
     color: #aaa;
 }
 
-/* Speed Section */
+/* ---------- Speed Section ---------- */
 .speed-section {
     margin-bottom: 12px;
-}
-
-.speed-section h3 {
-    color: #00ffff;
-    margin-bottom: 8px;
-    font-size: 1.1em; /* INCREASED from 1.0em */
-    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
 }
 
 .speed-controls {
@@ -208,12 +264,13 @@ body {
     background: #2a2a4a;
     border: 2px solid #4444aa;
     color: white;
-    padding: 7px; /* INCREASED from 5px */
+    padding: 7px;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    font-size: 0.95em; /* INCREASED from 0.85em */
+    font-size: clamp(0.78rem, 0.8vw + 0.3rem, 1rem);
     transition: all 0.3s;
+    text-align: center;
 }
 
 .speed-btn:hover {
@@ -222,25 +279,18 @@ body {
 }
 
 .speed-btn.active {
-    border-color: #00ff00;
+    border-color: var(--accent-green);
     background: #1a4a1a;
     box-shadow: 0 0 12px rgba(0, 255, 0, 0.4);
 }
 
-/* User Input Section */
+/* ---------- User Input Section ---------- */
 .user-input-section {
     margin-bottom: 12px;
-    padding: 10px; /* INCREASED from 8px */
+    padding: 10px;
     background: rgba(0, 255, 100, 0.08);
     border-radius: 6px;
-    border: 2px solid #00ff66;
-}
-
-.user-input-section h3 {
-    color: #00ff66;
-    margin-bottom: 8px;
-    font-size: 1.1em; /* INCREASED from 1.0em */
-    text-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
+    border: 2px solid var(--accent-input);
 }
 
 .input-wrapper {
@@ -251,19 +301,21 @@ body {
 
 .instruction-input {
     flex: 1;
+    min-width: 0;
+    /* allows shrinking inside flex */
     background: rgba(0, 0, 0, 0.6);
-    border: 2px solid #00ff66;
+    border: 2px solid var(--accent-input);
     color: #fff;
-    padding: 8px 10px; /* INCREASED from 6px 8px */
+    padding: 8px 10px;
     border-radius: 5px;
-    font-family: 'Courier New', monospace;
-    font-size: 1.0em; /* INCREASED from 0.9em */
+    font-family: var(--font-mono);
+    font-size: clamp(0.82rem, 0.85vw + 0.3rem, 1.05rem);
     outline: none;
     transition: all 0.3s;
 }
 
 .instruction-input:focus {
-    border-color: #00ffff;
+    border-color: var(--accent);
     background: rgba(0, 255, 255, 0.1);
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
 }
@@ -274,15 +326,16 @@ body {
 
 .execute-btn {
     background: linear-gradient(135deg, #00aa00 0%, #00ff66 100%);
-    border: 2px solid #00ff66;
+    border: 2px solid var(--accent-input);
     color: #000;
     font-weight: bold;
-    font-size: 1.1em; /* INCREASED from 1em */
-    padding: 8px 14px; /* INCREASED from 6px 12px */
+    font-size: clamp(0.95rem, 1vw + 0.3rem, 1.15rem);
+    padding: 8px 14px;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s;
     min-width: 50px;
+    flex-shrink: 0;
 }
 
 .execute-btn:hover {
@@ -296,14 +349,15 @@ body {
 }
 
 .error-message {
-    color: #ff4444;
-    font-size: 0.8em; /* INCREASED from 0.7em */
+    color: var(--accent-red);
+    font-size: clamp(0.7rem, 0.72vw + 0.25rem, 0.85rem);
     min-height: 18px;
     padding: 4px 6px;
     margin-bottom: 5px;
     background: rgba(255, 68, 68, 0.1);
     border-radius: 3px;
-    border-left: 3px solid #ff4444;
+    border-left: 3px solid var(--accent-red);
+    word-break: break-word;
 }
 
 .error-message:empty {
@@ -315,122 +369,106 @@ body {
     padding: 6px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
-    border-left: 3px solid #00ff66;
+    border-left: 3px solid var(--accent-input);
 }
 
 .hint-title {
-    color: #00ff66;
-    font-size: 0.88em; /* INCREASED from 0.8em */
+    color: var(--accent-input);
+    font-size: clamp(0.75rem, 0.78vw + 0.3rem, 0.92rem);
     font-weight: bold;
     margin-bottom: 4px;
 }
 
 .hint-item {
-    font-size: 0.78em; /* INCREASED from 0.72em */
+    font-size: clamp(0.68rem, 0.7vw + 0.25rem, 0.82rem);
     color: #aaa;
     margin: 3px 0;
-    font-family: 'Courier New', monospace;
+    font-family: var(--font-mono);
+    word-break: break-all;
 }
 
-/* Instruction Section */
+/* ---------- Instruction Section ---------- */
 .instruction-section {
     margin-bottom: 12px;
 }
 
-.instruction-section h3 {
-    color: #00ffff;
-    margin-bottom: 8px;
-    font-size: 1.1em; /* INCREASED from 1.0em */
-    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
-}
-
 .instruction-grid {
     display: grid;
-    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: var(--gap);
 }
 
 .instruction-btn {
     background: linear-gradient(135deg, #1a1a3e 0%, #2d2d5f 100%);
     border: 2px solid #4444ff;
     color: white;
-    padding: 8px; /* INCREASED from 6px */
+    padding: 8px;
     border-radius: 6px;
     cursor: pointer;
     text-align: left;
     transition: all 0.3s;
+    overflow: hidden;
 }
 
 .instruction-btn:hover:not(:disabled) {
     background: linear-gradient(135deg, #2d2d5f 0%, #4444ff 100%);
-    border-color: #00ffff;
+    border-color: var(--accent);
     box-shadow: 0 0 15px rgba(68, 68, 255, 0.6);
     transform: translateY(-1px);
 }
 
 .inst-code {
-    font-size: 1.0em; /* INCREASED from 0.9em */
+    font-size: clamp(0.82rem, 0.85vw + 0.3rem, 1.05rem);
     font-weight: bold;
     color: #fff;
     margin-bottom: 3px;
-    font-family: 'Courier New', monospace;
+    font-family: var(--font-mono);
 }
 
 .inst-meaning {
-    font-size: 0.82em; /* INCREASED from 0.75em */
+    font-size: clamp(0.7rem, 0.72vw + 0.25rem, 0.85rem);
     color: #aaaaff;
     margin-bottom: 4px;
 }
 
 .inst-flow {
-    font-size: 0.78em; /* INCREASED from 0.7em */
-    color: #00ff00;
+    font-size: clamp(0.65rem, 0.68vw + 0.22rem, 0.82rem);
+    color: var(--accent-green);
     background: rgba(0, 255, 0, 0.1);
     padding: 3px 6px;
     border-radius: 3px;
     display: inline-block;
-    font-family: 'Courier New', monospace;
-    border: 1px solid #00ff00;
+    font-family: var(--font-mono);
+    border: 1px solid var(--accent-green);
+    word-break: break-all;
 }
 
-/* Info Section */
+/* ---------- Info Section (Execution Status) ---------- */
 .info-section {
     margin-bottom: 12px;
     padding: 8px;
     background: rgba(0, 255, 255, 0.1);
     border-radius: 6px;
-    border: 1px solid #00ffff;
-}
-
-.info-section h3 {
-    color: #00ffff;
-    margin-bottom: 6px;
-    font-size: 1.1em; /* INCREASED from 1.0em */
-    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+    border: 1px solid var(--accent);
 }
 
 .status-line {
     margin: 4px 0;
-    font-size: 0.88em; /* INCREASED from 0.8em */
+    font-size: clamp(0.75rem, 0.78vw + 0.28rem, 0.92rem);
+    word-break: break-word;
 }
 
 .status-line span {
-    color: #00ff00;
+    color: var(--accent-green);
     font-weight: bold;
 }
 
-/* Legend Section */
+/* ---------- Legend Section ---------- */
 .legend-section {
     padding: 8px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 6px;
     margin-bottom: 10px;
-}
-
-.legend-section h3 {
-    color: #00ffff;
-    margin-bottom: 6px;
-    font-size: 1.1em; /* INCREASED from 1.0em */
-    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
 }
 
 .legend-items {
@@ -442,30 +480,23 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.82em; /* INCREASED from 0.75em */
+    font-size: clamp(0.7rem, 0.72vw + 0.25rem, 0.85rem);
 }
 
 .color-box {
-    width: 16px; /* INCREASED from 14px */
+    width: 16px;
     height: 16px;
     border-radius: 3px;
     border: 1px solid #fff;
     flex-shrink: 0;
 }
 
-/* Help Section */
+/* ---------- Help Section ---------- */
 .help-section {
     padding: 8px;
     background: rgba(255, 255, 0, 0.05);
     border-radius: 6px;
-    border: 1px solid #ffff00;
-}
-
-.help-section h3 {
-    color: #ffff00;
-    margin-bottom: 6px;
-    font-size: 1.1em; /* INCREASED from 1.0em */
-    text-shadow: 0 0 8px rgba(255, 255, 0, 0.5);
+    border: 1px solid var(--accent-yellow);
 }
 
 .mode-comparison {
@@ -474,50 +505,52 @@ body {
 }
 
 .comparison-item {
-    font-size: 0.82em; /* INCREASED from 0.75em */
+    font-size: clamp(0.7rem, 0.72vw + 0.25rem, 0.85rem);
     padding: 6px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
-    border-left: 3px solid #ffff00;
+    border-left: 3px solid var(--accent-yellow);
+    word-break: break-word;
 }
 
 .comparison-item strong {
-    color: #ffff00;
+    color: var(--accent-yellow);
     display: block;
     margin-bottom: 3px;
 }
 
-/* Loading Overlay */
+/* ============================================================
+   LOADING OVERLAY
+   ============================================================ */
 #loading-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: rgba(0, 0, 0, 0.95);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
     transition: opacity 0.5s;
+    padding: 20px;
 }
 
 .loading-content {
     text-align: center;
     color: white;
     padding: 20px;
+    max-width: 90vw;
 }
 
 .loading-content h2 {
-    color: #00ffff;
+    color: var(--accent);
     margin-bottom: 15px;
-    font-size: 1.5em;
+    font-size: clamp(1.1rem, 2vw + 0.5rem, 1.5rem);
 }
 
 .loading-content p {
     margin-bottom: 25px;
     color: #aaa;
-    font-size: 1.1em;
+    font-size: clamp(0.9rem, 1.2vw + 0.4rem, 1.1rem);
 }
 
 .spinner {
@@ -525,94 +558,292 @@ body {
     height: 50px;
     margin: 0 auto;
     border: 5px solid #333;
-    border-top: 5px solid #00ffff;
+    border-top: 5px solid var(--accent);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
-/* MOBILE RESPONSIVE */
+/* ============================================================
+   SCROLLBAR STYLING
+   ============================================================ */
+#control-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+#control-panel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+}
+
+#control-panel::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
+}
+
+#control-panel::-webkit-scrollbar-thumb:hover {
+    background: #00cccc;
+}
+
+/* ============================================================
+   EXTRA-LARGE DESKTOPS  (> 1920px)
+   ============================================================ */
+@media (min-width: 1921px) {
+    :root {
+        --panel-width: 420px;
+    }
+
+    #control-panel {
+        padding: 18px;
+    }
+
+    .instruction-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .legend-items {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .mode-selector {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ============================================================
+   LARGE DESKTOPS  (1367–1920px)  — default layout is fine
+   ============================================================ */
+@media (min-width: 1367px) and (max-width: 1920px) {
+    :root {
+        --panel-width: 360px;
+    }
+
+    .instruction-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .legend-items {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ============================================================
+   MEDIUM LAPTOPS  (1025–1366px)
+   ============================================================ */
+@media (min-width: 1025px) and (max-width: 1366px) {
+    :root {
+        --panel-width: 310px;
+    }
+
+    #control-panel {
+        padding: 10px;
+    }
+
+    .instruction-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .legend-items {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .mode-btn {
+        padding: 6px;
+    }
+
+    .instruction-btn {
+        padding: 6px;
+    }
+}
+
+/* ============================================================
+   SMALL LAPTOPS / LARGE TABLETS  (769–1024px)
+   ============================================================ */
+@media (min-width: 769px) and (max-width: 1024px) {
+    :root {
+        --panel-width: 280px;
+    }
+
+    #control-panel {
+        padding: 8px;
+    }
+
+    .panel-header h2 {
+        font-size: 0.95rem;
+    }
+
+    .mode-btn {
+        padding: 6px;
+    }
+
+    .mode-icon {
+        font-size: 1.1rem;
+    }
+
+    .mode-name {
+        font-size: 0.85rem;
+    }
+
+    .mode-desc {
+        font-size: 0.72rem;
+    }
+
+    .speed-btn {
+        padding: 5px;
+        font-size: 0.8rem;
+    }
+
+    .instruction-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+    }
+
+    .instruction-btn {
+        padding: 5px;
+    }
+
+    .inst-code {
+        font-size: 0.82rem;
+    }
+
+    .inst-meaning {
+        font-size: 0.7rem;
+    }
+
+    .inst-flow {
+        font-size: 0.65rem;
+    }
+
+    .legend-items {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .legend-item {
+        font-size: 0.7rem;
+    }
+
+    .color-box {
+        width: 14px;
+        height: 14px;
+    }
+
+    .comparison-item {
+        font-size: 0.72rem;
+    }
+
+    .hint-item {
+        font-size: 0.68rem;
+    }
+}
+
+/* ============================================================
+   TABLETS / LARGE PHONES LANDSCAPE  (481–768px)
+   Control panel switches to bottom sheet
+   ============================================================ */
 @media (max-width: 768px) {
-    /* Stage Banner */
+    :root {
+        --panel-width: auto;
+    }
+
+    /* Banner spans full width when panel is at bottom */
     #stage-banner {
-        position: fixed;
         top: 3px;
         left: 3px;
         right: 3px;
-        padding: 6px 10px;
+        padding: 5px 10px;
         z-index: 900;
-        max-height: 110px; /* INCREASED to accommodate T-State indicator */
-        min-height: 55px;
+        max-height: 85px;
+        /* Reduced from 110px */
+        min-height: 50px;
+        background: rgba(0, 0, 0, 0.85);
+        /* Slightly more transparent */
     }
-    
+
     .stage-title {
-        font-size: 0.85em; /* Slightly smaller for mobile */
+        font-size: 0.85rem;
         margin-bottom: 2px;
     }
-    
+
     .stage-explanation {
-        font-size: 0.7em; /* Readable but compact */
+        font-size: 0.72rem;
         line-height: 1.2;
         margin-bottom: 2px;
     }
-    
+
     .micro-op-indicator {
         margin-top: 3px;
         padding: 3px 5px;
-        font-size: 0.7em;
     }
-    
+
     .tstate-label {
-        font-size: 0.68em;
+        font-size: 0.7rem;
         margin-right: 4px;
     }
-    
+
     .tstate-value {
-        font-size: 0.8em;
+        font-size: 0.8rem;
         margin-right: 5px;
     }
-    
+
     .micro-op-text {
-        font-size: 0.62em;
+        font-size: 0.65rem;
     }
-    
-    /* Control Panel - Bottom slide-up design */
+
+    /* Control panel moves to the bottom */
     #control-panel {
         position: fixed;
-        left: 5px;
-        right: 5px;
-        bottom: 5px;
+        left: 3px;
+        right: 3px;
+        bottom: 3px;
         top: auto;
         width: auto;
-        max-height: 45vh; /* Reduced to give more space for 3D view */
-        border-radius: 10px 10px 0 0; /* Rounded top corners */
+        max-height: 40vh;
+        /* Reduced from 48vh to give more space for 3D view */
+        border-radius: 12px 12px 0 0;
         padding: 10px;
         overflow-y: auto;
         overflow-x: hidden;
     }
-    
+
     .panel-header {
         margin-bottom: 8px;
         padding-bottom: 6px;
         position: sticky;
         top: 0;
-        background: rgba(15, 15, 30, 0.97);
+        background: var(--panel-bg);
         z-index: 10;
     }
-    
-    .panel-header h2 {
-        font-size: 1.0em;
+
+    /* Added mobile scroll hint */
+    #control-panel::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+        margin: 0 auto 10px;
     }
-    
+
+    .panel-header h2 {
+        font-size: 1rem;
+    }
+
     .control-btn {
         padding: 5px 10px;
-        font-size: 0.8em;
+        font-size: 0.82rem;
     }
-    
+
+    /* Compact sections */
     .mode-section,
     .speed-section,
     .user-input-section,
@@ -625,7 +856,7 @@ body {
         background: rgba(0, 0, 0, 0.3);
         border-radius: 6px;
     }
-    
+
     .mode-section h3,
     .speed-section h3,
     .user-input-section h3,
@@ -633,256 +864,379 @@ body {
     .info-section h3,
     .legend-section h3,
     .help-section h3 {
-        font-size: 0.9em;
+        font-size: 0.88rem;
         margin-bottom: 6px;
     }
-    
+
     .mode-btn {
-        padding: 8px; /* Larger touch target */
-        margin-bottom: 5px;
+        padding: 8px;
+        margin-bottom: 4px;
     }
-    
+
     .mode-icon {
-        font-size: 1.2em;
+        font-size: 1.15rem;
     }
-    
+
     .mode-name {
-        font-size: 0.9em;
-        margin-bottom: 2px;
+        font-size: 0.88rem;
     }
-    
+
     .mode-desc {
-        font-size: 0.72em;
+        font-size: 0.72rem;
         line-height: 1.1;
     }
-    
+
     .speed-controls {
-        display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 5px;
     }
-    
+
     .speed-btn {
-        padding: 8px 5px; /* Better touch target */
-        font-size: 0.8em;
-        min-height: 36px;
+        padding: 8px 5px;
+        font-size: 0.82rem;
+        min-height: 38px;
     }
-    
-    /* User Input Section - Mobile Optimized */
-    .user-input-section h3 {
-        font-size: 0.9em;
-        margin-bottom: 6px;
-    }
-    
-    .input-wrapper {
-        display: flex;
-        gap: 5px;
-        margin-bottom: 6px;
-    }
-    
+
     .instruction-input {
-        font-size: 0.85em;
-        padding: 8px 10px; /* Larger touch-friendly padding */
-        min-height: 40px; /* Better touch target */
+        font-size: 0.85rem;
+        padding: 8px 10px;
+        min-height: 40px;
     }
-    
+
     .execute-btn {
-        font-size: 1.1em;
-        padding: 8px 14px; /* Better touch target */
+        font-size: 1.05rem;
+        padding: 8px 14px;
         min-width: 50px;
         min-height: 40px;
     }
-    
+
     .error-message {
-        font-size: 0.75em;
-        padding: 4px;
-        margin-bottom: 5px;
+        font-size: 0.75rem;
     }
-    
-    .template-hints {
-        padding: 6px;
-    }
-    
+
     .hint-title {
-        font-size: 0.75em;
-        margin-bottom: 4px;
+        font-size: 0.75rem;
     }
-    
+
     .hint-item {
-        font-size: 0.7em;
+        font-size: 0.7rem;
         line-height: 1.3;
-        margin-bottom: 2px;
     }
-    
+
     .instruction-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
+        grid-template-columns: repeat(2, 1fr);
         gap: 6px;
     }
-    
+
     .instruction-btn {
-        padding: 8px; /* Better touch target */
-        min-height: 75px;
+        padding: 8px;
+        min-height: 70px;
     }
-    
+
     .inst-code {
-        font-size: 0.85em;
-        margin-bottom: 3px;
+        font-size: 0.85rem;
     }
-    
+
     .inst-meaning {
-        font-size: 0.7em;
+        font-size: 0.7rem;
         line-height: 1.2;
     }
-    
+
     .inst-flow {
-        font-size: 0.65em;
+        font-size: 0.65rem;
     }
-    
+
     .status-line {
-        font-size: 0.75em;
+        font-size: 0.78rem;
         margin: 3px 0;
-        padding: 2px 0;
     }
-    
+
     .legend-items {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); /* 2 columns for better space usage */
+        grid-template-columns: repeat(2, 1fr);
         gap: 5px;
     }
-    
+
     .legend-item {
-        font-size: 0.7em;
-        padding: 3px;
+        font-size: 0.72rem;
+        padding: 2px;
     }
-    
+
     .color-box {
         width: 14px;
         height: 14px;
     }
-    
+
     .comparison-item {
-        font-size: 0.72em;
-        padding: 6px;
+        font-size: 0.72rem;
+        padding: 5px;
         line-height: 1.3;
     }
 }
 
-/* EXTRA SMALL MOBILE (Portrait phones) */
+/* ============================================================
+   SMALL PHONES  (≤ 480px)
+   ============================================================ */
 @media (max-width: 480px) {
     #stage-banner {
-        padding: 5px 8px;
-        max-height: 100px;
+        padding: 4px 8px;
+        max-height: 70px;
+        /* Reduced from 95px */
         top: 2px;
         left: 2px;
         right: 2px;
     }
-    
+
     .stage-title {
-        font-size: 0.75em;
+        font-size: 0.75rem;
     }
-    
+
     .stage-explanation {
-        font-size: 0.65em;
+        font-size: 0.65rem;
     }
-    
+
     .micro-op-indicator {
         padding: 2px 4px;
     }
-    
+
     .tstate-label,
     .tstate-value,
     .micro-op-text {
-        font-size: 0.6em;
+        font-size: 0.6rem;
     }
-    
+
     #control-panel {
-        max-height: 42vh; /* Even less height for small screens */
+        max-height: 35vh;
+        /* Even less on small phones */
         padding: 8px;
         left: 2px;
         right: 2px;
         bottom: 2px;
     }
-    
+
     .panel-header h2 {
-        font-size: 0.9em;
+        font-size: 0.88rem;
     }
-    
+
+    .control-btn {
+        padding: 4px 8px;
+        font-size: 0.78rem;
+    }
+
     .mode-section,
     .speed-section,
     .user-input-section,
-    .instruction-section {
+    .instruction-section,
+    .info-section,
+    .legend-section,
+    .help-section {
         margin-bottom: 6px;
+        padding: 5px;
     }
-    
-    .instruction-grid {
-        grid-template-columns: 1fr; /* Single column on very small screens */
-        gap: 5px;
+
+    .mode-section h3,
+    .speed-section h3,
+    .user-input-section h3,
+    .instruction-section h3,
+    .info-section h3,
+    .legend-section h3,
+    .help-section h3 {
+        font-size: 0.82rem;
+        margin-bottom: 5px;
     }
-    
-    .instruction-btn {
-        min-height: 65px;
+
+    .mode-btn {
         padding: 6px;
     }
-    
-    /* Hide less critical sections on very small screens */
+
+    .mode-icon {
+        font-size: 1rem;
+    }
+
+    .mode-name {
+        font-size: 0.82rem;
+    }
+
+    .mode-desc {
+        font-size: 0.68rem;
+    }
+
+    .speed-btn {
+        padding: 6px 4px;
+        font-size: 0.78rem;
+        min-height: 36px;
+    }
+
+    .instruction-input {
+        font-size: 0.82rem;
+        padding: 7px 8px;
+        min-height: 38px;
+    }
+
+    .execute-btn {
+        font-size: 1rem;
+        padding: 7px 12px;
+        min-width: 44px;
+        min-height: 38px;
+    }
+
+    .instruction-grid {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+
+    .instruction-btn {
+        min-height: 60px;
+        padding: 6px;
+    }
+
+    .inst-code {
+        font-size: 0.8rem;
+    }
+
+    .inst-meaning {
+        font-size: 0.68rem;
+    }
+
+    .inst-flow {
+        font-size: 0.62rem;
+    }
+
+    .status-line {
+        font-size: 0.72rem;
+    }
+
+    .legend-items {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .legend-item {
+        font-size: 0.68rem;
+    }
+
+    .color-box {
+        width: 12px;
+        height: 12px;
+    }
+
+    /* Hide less-critical sections on tiny screens */
     .help-section {
         display: none;
     }
-    
-    .legend-section {
-        margin-bottom: 5px;
+
+    .template-hints {
+        padding: 4px;
+    }
+
+    .hint-item {
+        font-size: 0.65rem;
+    }
+
+    .comparison-item {
+        font-size: 0.68rem;
+        padding: 4px;
     }
 }
 
-/* LANDSCAPE MOBILE (Better side-by-side layout) */
+/* ============================================================
+   VERY SMALL PHONES  (≤ 360px)
+   ============================================================ */
+@media (max-width: 360px) {
+    #stage-banner {
+        max-height: 80px;
+        padding: 4px 6px;
+    }
+
+    .stage-title {
+        font-size: 0.7rem;
+    }
+
+    .stage-explanation {
+        font-size: 0.6rem;
+    }
+
+    #control-panel {
+        max-height: 42vh;
+        padding: 6px;
+    }
+
+    .panel-header h2 {
+        font-size: 0.82rem;
+    }
+
+    .speed-controls {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 3px;
+    }
+
+    .speed-btn {
+        padding: 5px 3px;
+        font-size: 0.72rem;
+        min-height: 34px;
+    }
+
+    .instruction-btn {
+        min-height: 55px;
+        padding: 5px;
+    }
+
+    /* Hide legend on very tiny screens to save space */
+    .legend-section {
+        display: none;
+    }
+}
+
+/* ============================================================
+   LANDSCAPE MOBILE  (short viewport, wide)
+   ============================================================ */
 @media (max-width: 968px) and (orientation: landscape) {
     #stage-banner {
         top: 3px;
         left: 3px;
-        right: 52%; /* Leave more space for control panel */
+        right: 52%;
         padding: 4px 8px;
-        max-height: 80px; /* Taller to accommodate T-State */
+        max-height: 80px;
         overflow-y: auto;
     }
-    
+
     .stage-title {
-        font-size: 0.75em;
+        font-size: 0.75rem;
     }
-    
+
     .stage-explanation {
-        font-size: 0.65em;
+        font-size: 0.65rem;
         line-height: 1.1;
     }
-    
+
     .micro-op-indicator {
         padding: 2px 4px;
         margin-top: 2px;
     }
-    
+
     .tstate-label,
     .tstate-value {
-        font-size: 0.65em;
+        font-size: 0.65rem;
     }
-    
+
     .micro-op-text {
-        font-size: 0.6em;
+        font-size: 0.6rem;
     }
-    
+
+    /* Panel takes right half in landscape */
     #control-panel {
         position: fixed;
         right: 3px;
         top: 3px;
         bottom: 3px;
         left: auto;
-        width: 50%; /* Half screen */
+        width: 50%;
         max-height: none;
         border-radius: 8px;
     }
-    
+
     .panel-header h2 {
-        font-size: 0.95em;
+        font-size: 0.92rem;
     }
-    
+
     .mode-section,
     .speed-section,
     .user-input-section,
@@ -891,46 +1245,85 @@ body {
     .legend-section {
         margin-bottom: 6px;
     }
-    
+
     .instruction-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 5px;
     }
-    
+
     .instruction-btn {
-        min-height: 60px;
+        min-height: 55px;
         padding: 5px;
+    }
+
+    /* Hide help section in landscape mobile to save space */
+    .help-section {
+        display: none;
     }
 }
 
-/* Scrollbar Styling */
-#control-panel::-webkit-scrollbar {
-    width: 6px; /* Slightly wider for easier grabbing on mobile */
+/* ============================================================
+   LANDSCAPE SMALL PHONES  (max-height ≤ 420px, landscape)
+   ============================================================ */
+@media (max-height: 420px) and (orientation: landscape) {
+    #stage-banner {
+        max-height: 60px;
+        padding: 3px 6px;
+    }
+
+    .stage-title {
+        font-size: 0.7rem;
+        margin-bottom: 1px;
+    }
+
+    .stage-explanation {
+        font-size: 0.6rem;
+    }
+
+    #control-panel {
+        width: 48%;
+        padding: 6px;
+    }
+
+    .mode-section,
+    .speed-section,
+    .user-input-section,
+    .instruction-section,
+    .info-section,
+    .legend-section,
+    .help-section {
+        margin-bottom: 4px;
+        padding: 4px;
+    }
+
+    .mode-btn {
+        padding: 4px;
+    }
+
+    .speed-btn {
+        padding: 4px 3px;
+        min-height: 30px;
+        font-size: 0.72rem;
+    }
+
+    .instruction-btn {
+        min-height: 48px;
+        padding: 4px;
+    }
+
+    .legend-section,
+    .help-section {
+        display: none;
+    }
 }
 
-#control-panel::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
-}
-
-#control-panel::-webkit-scrollbar-thumb {
-    background: #00ffff;
-    border-radius: 3px;
-}
-
-#control-panel::-webkit-scrollbar-thumb:hover {
-    background: #00cccc;
-}
-
-/* Smooth Scrolling */
-#control-panel {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch; /* Smooth iOS scrolling */
-}
-
-/* Touch-friendly interactions */
+/* ============================================================
+   TOUCH-FRIENDLY INTERACTIONS
+   (devices with coarse pointer / no hover)
+   ============================================================ */
 @media (hover: none) and (pointer: coarse) {
-    /* Remove hover effects on touch devices */
+
+    /* Remove hover transforms on touch */
     .mode-btn:hover,
     .speed-btn:hover,
     .instruction-btn:hover,
@@ -938,20 +1331,57 @@ body {
     .execute-btn:hover {
         transform: none;
     }
-    
-    /* Add active/press states instead */
+
+    /* Press/active states instead */
     .mode-btn:active,
     .speed-btn:active,
     .instruction-btn:active {
-        transform: scale(0.98);
+        transform: scale(0.97);
         opacity: 0.9;
     }
-    
-    /* Ensure minimum touch target sizes (44x44px recommended) */
+
+    /* Minimum 44px touch targets (WCAG) */
     .speed-btn,
     .mode-btn,
     .control-btn,
-    .execute-btn {
+    .execute-btn,
+    .instruction-btn {
         min-height: 44px;
+    }
+}
+
+/* ============================================================
+   HIGH-DPI / RETINA ENHANCEMENTS
+   ============================================================ */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+
+    #stage-banner,
+    #control-panel {
+        border-width: 1.5px;
+    }
+
+    .micro-op-indicator {
+        border-width: 1.5px;
+    }
+}
+
+/* ============================================================
+   PRINT  (just in case)
+   ============================================================ */
+@media print {
+
+    #ar-container,
+    #loading-overlay {
+        display: none;
+    }
+
+    #control-panel {
+        position: static;
+        width: 100%;
+        max-height: none;
+        border: 1px solid #000;
+        color: #000;
+        background: #fff;
     }
 }

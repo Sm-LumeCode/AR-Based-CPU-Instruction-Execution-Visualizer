@@ -8,6 +8,8 @@ export class UI {
         this.animationController = animationController;
         this.currentMode = 'instruction-cycle';
         this.currentSpeed = 1.0;
+
+
     }
 
     init() {
@@ -23,17 +25,17 @@ export class UI {
      */
     setupModeButtons() {
         const modeButtons = document.querySelectorAll('.mode-btn');
-        
+
         modeButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const mode = button.dataset.mode;
-                
+
                 if (this.animationController.setMode(mode)) {
                     // Update UI
                     modeButtons.forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
                     this.currentMode = mode;
-                    
+
                     console.log(`✓ Mode switched to: ${mode}`);
                 }
             });
@@ -45,18 +47,18 @@ export class UI {
      */
     setupSpeedButtons() {
         const speedButtons = document.querySelectorAll('.speed-btn');
-        
+
         speedButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const speed = parseFloat(button.dataset.speed);
-                
+
                 this.animationController.setSpeed(speed);
-                
+
                 // Update UI
                 speedButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
                 this.currentSpeed = speed;
-                
+
                 console.log(`✓ Speed set to: ${speed}x`);
             });
         });
@@ -67,18 +69,18 @@ export class UI {
      */
     setupInstructionButtons() {
         const buttons = document.querySelectorAll('.instruction-btn');
-        
+
         buttons.forEach(button => {
             button.addEventListener('click', async () => {
                 const instruction = button.dataset.instruction;
-                
+
                 // Disable all buttons during animation
                 this.disableButtons(true);
                 this.clearError();
-                
+
                 // Execute instruction
                 await this.animationController.executeInstruction(instruction);
-                
+
                 // Re-enable buttons
                 this.disableButtons(false);
             });
@@ -91,7 +93,7 @@ export class UI {
     setupUserInput() {
         const input = document.getElementById('user-instruction-input');
         const executeBtn = document.getElementById('execute-user-btn');
-        
+
         if (!input || !executeBtn) {
             console.warn('User input elements not found');
             return;
@@ -120,14 +122,14 @@ export class UI {
      */
     async executeUserInput(userText) {
         const input = document.getElementById('user-instruction-input');
-        
+
         // Disable UI during execution
         this.disableButtons(true);
         if (input) input.disabled = true;
-        
+
         // Execute through animation controller
         const result = await this.animationController.executeUserInstruction(userText);
-        
+
         if (result.success) {
             // Success - clear input and error
             if (input) input.value = '';
@@ -138,7 +140,7 @@ export class UI {
             this.showError(result.error);
             console.log('✗ Invalid instruction:', userText);
         }
-        
+
         // Re-enable UI
         this.disableButtons(false);
         if (input) input.disabled = false;
@@ -169,7 +171,7 @@ export class UI {
      */
     setupResetButton() {
         const resetBtn = document.getElementById('reset-btn');
-        
+
         if (resetBtn) {
             resetBtn.addEventListener('click', () => {
                 this.animationController.reset();

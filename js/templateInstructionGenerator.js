@@ -71,7 +71,7 @@ export class TemplateInstructionGenerator {
 
     generateMOVSequence(params) {
         const { destReg, immediate } = params;
-        
+
         return [
             {
                 stage: 'FETCH',
@@ -117,7 +117,7 @@ export class TemplateInstructionGenerator {
 
     generateADDSequence(params) {
         const { destReg, sourceReg } = params;
-        
+
         return [
             {
                 stage: 'FETCH',
@@ -165,7 +165,7 @@ export class TemplateInstructionGenerator {
 
     generateLOADSequence(params) {
         const { destReg, address } = params;
-        
+
         return [
             {
                 stage: 'FETCH',
@@ -211,7 +211,7 @@ export class TemplateInstructionGenerator {
 
     generateSTORESequence(params) {
         const { sourceReg, address } = params;
-        
+
         return [
             {
                 stage: 'FETCH',
@@ -258,7 +258,7 @@ export class TemplateInstructionGenerator {
 
     generateMOVMicroOps(params) {
         const { destReg, immediate } = params;
-        
+
         return [
             {
                 tState: 'T1',
@@ -311,7 +311,7 @@ export class TemplateInstructionGenerator {
 
     generateADDMicroOps(params) {
         const { destReg, sourceReg } = params;
-        
+
         return [
             {
                 tState: 'T1',
@@ -385,7 +385,7 @@ export class TemplateInstructionGenerator {
 
     generateLOADMicroOps(params) {
         const { destReg, address } = params;
-        
+
         return [
             {
                 tState: 'T1',
@@ -454,7 +454,7 @@ export class TemplateInstructionGenerator {
 
     generateSTOREMicroOps(params) {
         const { sourceReg, address } = params;
-        
+
         return [
             {
                 tState: 'T1',
@@ -544,7 +544,7 @@ export class TemplateInstructionGenerator {
      */
     generateALUSequence(params, opcode, operation, operationName) {
         const { destReg, sourceReg } = params;
-        
+
         return [
             {
                 stage: 'FETCH',
@@ -614,7 +614,7 @@ export class TemplateInstructionGenerator {
      */
     generateALUMicroOps(params, opcode, operationName) {
         const { destReg, sourceReg } = params;
-        
+
         return [
             {
                 tState: 'T1',

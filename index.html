@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description"
+        content="Interactive AR-based CPU instruction execution visualizer — see fetch, decode, execute cycles and micro-operations in 3D.">
     <title>AR CPU Micro-Operation Visualizer</title>
     <link rel="stylesheet" href="css/styles.css">
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/three.js/build/ar-threex.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
+
 <body>
     <!-- AR Container -->
     <div id="ar-container"></div>
-    
+
     <!-- Stage Banner -->
     <div id="stage-banner">
         <div class="stage-title" id="stage-title">Ready</div>
@@ -26,14 +30,14 @@
             <span class="micro-op-text" id="micro-op-text"></span>
         </div>
     </div>
-    
+
     <!-- Control Panel -->
     <div id="control-panel">
         <div class="panel-header">
             <h2>🎯 CPU Visualizer</h2>
             <button id="reset-btn" class="control-btn reset-btn">Reset</button>
         </div>
-        
+
         <!-- Mode Selection -->
         <div class="mode-section">
             <h3>📊 Visualization Mode</h3>
@@ -50,7 +54,7 @@
                 </button>
             </div>
         </div>
-        
+
         <!-- Speed Control -->
         <div class="speed-section">
             <h3>⏱️ Animation Speed</h3>
@@ -61,17 +65,13 @@
                 <button class="speed-btn" data-speed="2">2x</button>
             </div>
         </div>
-        
+
         <!-- User Input Section - NEW -->
         <div class="user-input-section">
             <h3>✍️ Enter Your Instruction</h3>
             <div class="input-wrapper">
-                <input type="text" 
-                       id="user-instruction-input" 
-                       class="instruction-input" 
-                       placeholder="Example: ADD R1, R2"
-                       autocomplete="off"
-                       spellcheck="false">
+                <input type="text" id="user-instruction-input" class="instruction-input"
+                    placeholder="Example: ADD R1, R2" autocomplete="off" spellcheck="false">
                 <button id="execute-user-btn" class="execute-btn">▶</button>
             </div>
             <div id="instruction-error" class="error-message"></div>
@@ -83,7 +83,7 @@
                 <div class="hint-item">• STORE R{0-3}, [address]</div>
             </div>
         </div>
-        
+
         <!-- Instruction Selection -->
         <div class="instruction-section">
             <h3>📚 Or Select Example</h3>
@@ -93,43 +93,43 @@
                     <div class="inst-meaning">Move immediate value to register</div>
                     <div class="inst-flow">IR → R1</div>
                 </button>
-                
+
                 <button class="instruction-btn" data-instruction="ADD_R1_R2">
                     <div class="inst-code">ADD R1, R2</div>
                     <div class="inst-meaning">Add two registers</div>
                     <div class="inst-flow">R1,R2 → ALU → R1</div>
                 </button>
-                
+
                 <button class="instruction-btn" data-instruction="SUB_R1_R2">
                     <div class="inst-code">SUB R1, R2</div>
                     <div class="inst-meaning">Subtract registers</div>
                     <div class="inst-flow">R1,R2 → ALU → R1</div>
                 </button>
-                
+
                 <button class="instruction-btn" data-instruction="MUL_R2_R3">
                     <div class="inst-code">MUL R2, R3</div>
                     <div class="inst-meaning">Multiply registers</div>
                     <div class="inst-flow">R2,R3 → ALU → R2</div>
                 </button>
-                
+
                 <button class="instruction-btn" data-instruction="DIV_R1_R2">
                     <div class="inst-code">DIV R1, R2</div>
                     <div class="inst-meaning">Divide registers</div>
                     <div class="inst-flow">R1,R2 → ALU → R1</div>
                 </button>
-                
+
                 <button class="instruction-btn" data-instruction="AND_R2_R3">
                     <div class="inst-code">AND R2, R3</div>
                     <div class="inst-meaning">Bitwise AND registers</div>
                     <div class="inst-flow">R2,R3 → ALU → R2</div>
                 </button>
-                
+
                 <button class="instruction-btn" data-instruction="LOAD_R1_100">
                     <div class="inst-code">LOAD R1, [100]</div>
                     <div class="inst-meaning">Load from memory to register</div>
                     <div class="inst-flow">MEM[100] → R1</div>
                 </button>
-                
+
                 <button class="instruction-btn" data-instruction="STORE_R2_200">
                     <div class="inst-code">STORE R2, [200]</div>
                     <div class="inst-meaning">Store register to memory</div>
@@ -137,7 +137,7 @@
                 </button>
             </div>
         </div>
-        
+
         <!-- Execution Status -->
         <div class="info-section">
             <h3>🎬 Execution Status</h3>
@@ -148,7 +148,7 @@
                 <p class="status-line">Action: <span id="current-action">Waiting...</span></p>
             </div>
         </div>
-        
+
         <!-- Visual Legend -->
         <div class="legend-section">
             <h3>🎨 Color Guide</h3>
@@ -175,21 +175,23 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Help Section -->
         <div class="help-section">
             <h3>💡 About User Input</h3>
             <div class="mode-comparison">
                 <div class="comparison-item">
-                    <strong>Template Matching:</strong> Your input is matched against predefined patterns. NO computation or decoding occurs—only visualization of register transfers.
+                    <strong>Template Matching:</strong> Your input is matched against predefined patterns. NO
+                    computation or decoding occurs—only visualization of register transfers.
                 </div>
                 <div class="comparison-item">
-                    <strong>Why Constrained Input?</strong> Ensures correct visualizations, prevents ambiguity, and focuses learning on CPU data flow rather than assembly syntax.
+                    <strong>Why Constrained Input?</strong> Ensures correct visualizations, prevents ambiguity, and
+                    focuses learning on CPU data flow rather than assembly syntax.
                 </div>
             </div>
         </div>
     </div>
-    
+
     <!-- Loading Overlay -->
     <div id="loading-overlay">
         <div class="loading-content">
@@ -198,8 +200,9 @@
             <div class="spinner"></div>
         </div>
     </div>
-    
+
     <!-- Scripts -->
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js?v=2"></script>
 </body>
+
 </html>

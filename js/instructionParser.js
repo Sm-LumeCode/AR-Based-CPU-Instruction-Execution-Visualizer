@@ -9,7 +9,7 @@ export class InstructionParser {
     constructor() {
         // Valid registers only
         this.validRegisters = ['R0', 'R1', 'R2', 'R3'];
-        
+
         // Template patterns (case-insensitive)
         this.patterns = {
             MOV: /^\s*MOV\s+(R[0-3])\s*,\s*#(\d+)\s*$/i,
@@ -30,7 +30,7 @@ export class InstructionParser {
     parse(input) {
         // Trim whitespace
         const trimmed = input.trim();
-        
+
         // Empty check
         if (!trimmed) {
             return {
@@ -173,7 +173,7 @@ export class InstructionParser {
      */
     getHelpfulError(input) {
         const upperInput = input.toUpperCase();
-        
+
         // Check for instruction type
         if (upperInput.startsWith('MOV')) {
             return 'MOV format: MOV R?, #? (Example: MOV R1, #5)';
@@ -199,7 +199,7 @@ export class InstructionParser {
         if (upperInput.startsWith('STORE')) {
             return 'STORE format: STORE R?, [?] (Example: STORE R2, [200])';
         }
-        
+
         // Unknown instruction
         return 'Supported: MOV, ADD, SUB, MUL, DIV, AND, LOAD, STORE';
     }
