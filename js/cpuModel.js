@@ -38,8 +38,8 @@ export class CPUModel {
             // Desktop: AGGRESSIVE shift to the empty left side
             // Move LEFT even further (-3.5) to use all that empty space
             // Move DOWN far (-1.2) to clear the top Ready box with larger blocks
-            this.xOffset = -3.5;
-            this.baseY = -1.2;
+            this.xOffset = -3.9;
+            this.baseY = -1.6;
         }
 
         // Horizontal spacing factor: 1.1 for desktop (wide), 1.0 for mobile (standard)
@@ -361,7 +361,7 @@ export class CPUModel {
     buildALU(baseY) {
         // PERFECTLY SQUARE cube with label (like other components)
         const size = 0.35 * this.scaleFactor;
-        const geometry = new THREE.BoxGeometry(size, size, size);
+        const geometry = new THREE.BoxGeometry(size*1.5, size*1.25, size);
 
         // ALU gets NORMAL text (No black outline)
         const texture = this.createLabeledTexture('ALU', 0xFF0000);

@@ -150,6 +150,14 @@
             </div>
         </div>
 
+        <!-- Binary Opcode Section -->
+        <div id="opcode-display" class="info-section">
+            <h3>🎛️ Binary Opcode</h3>
+            <div style="text-align: center; padding: 4px 0;">
+                <span id="binary-opcode">0000 0000 0000 0000</span>
+            </div>
+        </div>
+
         <!-- Visual Legend -->
         <div class="legend-section">
             <h3>🎨 Color Guide</h3>
@@ -179,15 +187,21 @@
 
         <!-- Help Section -->
         <div class="help-section">
-            <h3>💡 About User Input</h3>
+            <h3>💡 System Bus Guide</h3>
             <div class="mode-comparison">
                 <div class="comparison-item">
-                    <strong>Template Matching:</strong> Your input is matched against predefined patterns. NO
-                    computation or decoding occurs—only visualization of register transfers.
+                    <strong>Address Bus:</strong> Used by the CPU to specify the memory location it wants to read from
+                    or write to. In your project, this is visualized as the Address Signal (Blue).
                 </div>
                 <div class="comparison-item">
-                    <strong>Why Constrained Input?</strong> Ensures correct visualizations, prevents ambiguity, and
-                    focuses learning on CPU data flow rather than assembly syntax.
+                    <strong>Data Bus:</strong> The path through which the actual data (operands, results, instructions)
+                    travels between the CPU, memory, and registers. In your project, this is visualized as Data Flow
+                    (Green).
+                </div>
+                <div class="comparison-item">
+                    <strong>Control Bus:</strong> Carries command signals from the control unit to other components
+                    (like "Read", "Write", or "ALU Execute") to synchronize operations. In your project, this is
+                    visualized as Control Signal (Yellow).
                 </div>
             </div>
         </div>
