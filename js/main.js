@@ -20,31 +20,31 @@ class ARCPUVisualizer {
     async init() {
         try {
             console.log('🚀 Initializing AR CPU Visualizer...');
-            
+
             this.arScene = new ARScene();
             await this.arScene.init();
             console.log('✓ AR Scene initialized');
-            
+
             this.cpuModel = new CPUModel(this.arScene.scene);
             this.cpuModel.build();
             console.log('✓ CPU Model built');
-            
+
             this.animationController = new AnimationController(
                 this.cpuModel,
                 this.arScene.scene
             );
             console.log('✓ Animation Controller ready');
-            
+
             this.ui = new UI(this.animationController);
             this.ui.init();
             console.log('✓ UI initialized');
-            
+
             this.arScene.startRenderLoop();
             this.hideLoadingOverlay();
-            
+
             this.isInitialized = true;
             console.log('✅ AR CPU Visualizer ready!');
-            
+
         } catch (error) {
             console.error('❌ Initialization error:', error);
             this.showError('Failed to initialize AR. Please check camera permissions.');

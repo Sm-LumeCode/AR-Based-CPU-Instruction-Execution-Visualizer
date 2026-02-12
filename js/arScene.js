@@ -13,6 +13,15 @@ export class ARScene {
         this.arToolkitContext = null;
         this.container = null;
         this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        // --- NEW: OrbitControls state ---
+        this.controls = null;
+        this.arModeActive = false; // Flag to disable orbit when AR tracking is active
+
+        // --- NEW: Privacy/Shutter Detection ---
+        this.privacyCanvas = null;
+        this.privacyContext = null;
+        this.isShuttered = false;
     }
 
     /**
@@ -29,64 +38,71 @@ export class ARScene {
         // Default (large desktop)
         let settings = {
             fov: 60,
-            camX: 0,
-            camY: 0.3,
-            camZ: 3.0,
-            lookAtY: 0,
+            camX: -2.0,
+            camY: 1.2,
+            camZ: 5.0,
+            lookAtX: -2.0,
+            lookAtY: -1.0,
         };
 
         if (isPortraitMobile) {
-            // Mobile - PUSHED UP MAX for gap
+            // Mobile - SUBTLE 3D Perspective
             settings = {
-                fov: 52,       // Even narrower
-                camX: 0.0,     // Centered
-                camY: 1.35,    // Extreme high angle
-                camZ: 3.5,     // Far back
-                lookAtY: 1.05, // Look at new center (baseY 1.25)
+                fov: 52,
+                camX: 0.4,     // Side offset for 3D look
+                camY: 2.2,     // Elevation for top view
+                camZ: 4.2,
+                lookAtX: 0.0,  // Keep model centered
+                lookAtY: 0.8,
             };
         } else if (isLandscapeMobile) {
-            // Landscape mobile — panel takes right 50 %
+            // Landscape mobile
             settings = {
                 fov: 62,
-                camX: -0.3,    // shift model left into the visible half
-                camY: 0.3,
+                camX: -0.3,
+                camY: 0.8,
                 camZ: 2.8,
+                lookAtX: -0.3,
                 lookAtY: 0.0,
             };
         } else if (w <= 1024) {
             // Small laptop / large tablet
             settings = {
                 fov: 62,
-                camX: -2.0,    // Shifted left to follow model
-                camY: 0.2,
-                camZ: 4.5,     // Zoomed out more for larger blocks
-                lookAtY: -1.0, // Look at new baseY
+                camX: -2.0,
+                camY: 1.0,
+                camZ: 4.8,
+                lookAtX: -2.0,
+                lookAtY: -1.0,
             };
         } else if (w <= 1366) {
             // Medium laptop
             settings = {
                 fov: 62,
                 camX: -2.0,
-                camY: 0.2,
-                camZ: 4.5,
-                lookAtY: -1.0,
+                camY: 1.0,
+                camZ: 4.8,
+                lookAtX: -2.0,
+                lookAtY: -1.1,
             };
         } else if (w <= 1920) {
             // Large desktop
             settings = {
                 fov: 60,
                 camX: -2.0,
-                camY: 0.2,
-                camZ: 4.5,
-                lookAtY: -1.0,
+                camY: 1.0,
+                camZ: 4.8,
+                lookAtX: -2.0,
+                lookAtY: -1.1,
             };
         } else {
             // Extra-large / 4K
             settings = {
                 fov: 55,
                 camX: 0,
-                camY: 0.3,
-                camZ: 3.2,
+                camY: 1.0,
+                camZ: 4.0,
+                lookAtX: 0,
                 lookAtY: 0,
             };
         }
@@ -110,7 +126,7 @@ export class ARScene {
         );
 
         this.camera.position.set(settings.camX, settings.camY, settings.camZ);
-        this.camera.lookAt(settings.camX, settings.lookAtY, 0);
+        this.camera.lookAt(settings.lookAtX, settings.lookAtY, 0);
 
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
@@ -125,7 +141,157 @@ export class ARScene {
 
         window.addEventListener('resize', () => this.onWindowResize());
 
+        // --- NEW: Initialize OrbitControls ---
+        this.setupOrbitControls(settings);
+
         return this;
+    }
+
+    /**
+     * Setup OrbitControls with appropriate limits and damping
+     */
+    setupOrbitControls(settings) {
+        // We use THREE.OrbitControls loaded via script tag in index.html
+        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+
+        // Smooth movement
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.05;
+
+        // --- MOBILE/PHONE ENHANCEMENTS ---
+        this.controls.enableRotate = true;
+        this.controls.enableZoom = true;
+        this.controls.enablePan = true;
+
+        // Touch Configuration: 1 finger rotate, 2 finger zoom/pan
+        this.controls.touches = {
+            ONE: THREE.TOUCH.ROTATE,
+            TWO: THREE.TOUCH.DOLLY_PAN
+        };
+
+        // Desktop Configuration: Left rotate, Middle zoom, Right pan
+        this.controls.mouseButtons = {
+            LEFT: THREE.MOUSE.ROTATE,
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: THREE.MOUSE.PAN
+        };
+
+        // Centering on CPU model using responsive lookAt points
+        this.controls.target.set(settings.lookAtX, settings.lookAtY, 0);
+
+        // Limits to keep the model in view
+        this.controls.minDistance = 3;
+        this.controls.maxDistance = 30;
+        this.controls.maxPolarAngle = Math.PI; // Full rotation allowed
+
+        // Conditional enablement based on initial mode
+        this.controls.enabled = !this.arModeActive;
+
+        console.log('✓ Camera Orbit Controls initialized (Mobile Touch enabled)');
+    }
+
+    /**
+     * Helper to toggle AR mode and disable/enable orbit controls
+     */
+    setARMode(active) {
+        this.arModeActive = active;
+        if (this.controls) {
+            this.controls.enabled = !active;
+            // When switching back from AR, reset camera to responsive defaults
+            if (!active) {
+                const settings = this.getResponsiveSettings();
+                this.camera.position.set(settings.camX, settings.camY, settings.camZ);
+                this.controls.target.set(settings.lookAtX, settings.lookAtY, 0);
+                this.controls.update();
+            }
+        }
+    }
+
+    /**
+     * Checks if the camera feed is black (Privacy Shutter active)
+     */
+    checkCameraPrivacy() {
+        if (!this.arToolkitSource || !this.arToolkitSource.ready) return;
+
+        const video = this.arToolkitSource.domElement;
+        if (!video || video.readyState < 2) return;
+
+        if (!this.privacyCanvas) {
+            this.privacyCanvas = document.createElement('canvas');
+            this.privacyCanvas.width = 10;
+            this.privacyCanvas.height = 10;
+            this.privacyContext = this.privacyCanvas.getContext('2d', { willReadFrequently: true });
+            this.lastFrameData = null;
+            this.staticFrameCount = 0;
+        }
+
+        try {
+            this.privacyContext.drawImage(video, 0, 0, 10, 10);
+            const imageData = this.privacyContext.getImageData(0, 0, 10, 10);
+            const data = imageData.data;
+
+            // 1. Brightness Check (for physical shutters)
+            let brightness = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                brightness += (data[i] + data[i + 1] + data[i + 2]) / 3;
+            }
+            const avgBrightness = brightness / (data.length / 4);
+
+            // 2. Motion Check (for software privacy placeholders)
+            let isStatic = false;
+            if (this.lastFrameData) {
+                let diff = 0;
+                for (let i = 0; i < data.length; i++) {
+                    diff += Math.abs(data[i] - this.lastFrameData[i]);
+                }
+                // If the 10x10 grid is virtually identical (noise threshold < 50)
+                if (diff < 50) {
+                    this.staticFrameCount++;
+                } else {
+                    this.staticFrameCount = 0;
+                }
+            }
+            this.lastFrameData = new Uint8ClampedArray(data);
+
+            // Shutter is active if it's pitch black OR if the image is 100% static (common for driver placeholders)
+            // Software shutters often show a static camera-slash icon
+            const currentlyShuttered = (avgBrightness < 20) || (this.staticFrameCount > 5);
+
+            if (this.isShuttered !== currentlyShuttered) {
+                this.isShuttered = currentlyShuttered;
+                this.toggleModelVisibility(!this.isShuttered);
+
+                const banner = document.getElementById('stage-title');
+                const explanation = document.getElementById('stage-explanation');
+
+                if (this.isShuttered) {
+                    if (banner) {
+                        banner.textContent = "PRIVACY MODE: SHUTTER DETECTED";
+                        banner.style.color = "#ff4444";
+                    }
+                    if (explanation) explanation.textContent = "Camera feed is blocked or static. Open shutter to resume.";
+                } else {
+                    if (banner) {
+                        banner.textContent = "READY";
+                        banner.style.color = "#00ff00";
+                    }
+                    if (explanation) explanation.textContent = "Enter an instruction or select an example to begin";
+                }
+            }
+        } catch (e) { }
+    }
+
+    /**
+     * Show/Hide all 3D content in the scene
+     */
+    toggleModelVisibility(visible) {
+        this.scene.children.forEach(child => {
+            // Hide meshes (CPU blocks), groups (registers), and lines (buses)
+            // But KEEP lights so the scene isn't completely pitch black if we reveal it
+            if (child.type === 'Mesh' || child.type === 'Group' || child.type === 'Line') {
+                child.visible = visible;
+            }
+        });
     }
 
     async setupAR() {
@@ -191,8 +357,14 @@ export class ARScene {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
 
-        this.camera.position.set(settings.camX, settings.camY, settings.camZ);
-        this.camera.lookAt(settings.camX, settings.lookAtY, 0);
+        // Only force camera position if orbit is disabled (AR Mode)
+        // Otherwise, just update the target to keep the model centered
+        if (this.controls && !this.controls.enabled) {
+            this.camera.position.set(settings.camX, settings.camY, settings.camZ);
+            this.camera.lookAt(settings.lookAtX, settings.lookAtY, 0);
+        } else if (this.controls) {
+            this.controls.target.set(settings.lookAtX, settings.lookAtY, 0);
+        }
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.onResize();
@@ -211,11 +383,25 @@ export class ARScene {
     }
 
     startRenderLoop() {
+        let frameCount = 0;
         const animate = () => {
             requestAnimationFrame(animate);
 
+            // Update AR tracking if active
             if (this.arToolkitSource && this.arToolkitSource.ready !== false) {
                 this.arToolkitContext.update(this.arToolkitSource.domElement);
+            }
+
+            // --- NEW: Privacy check every 30 frames (~500ms) ---
+            if (frameCount % 30 === 0) {
+                this.checkCameraPrivacy();
+            }
+            frameCount++;
+
+            // --- NEW: Update OrbitControls damping/state ---
+            // Automatically disabled if arModeActive is true or shuttered
+            if (this.controls && this.controls.enabled && !this.isShuttered) {
+                this.controls.update();
             }
 
             this.renderer.render(this.scene, this.camera);

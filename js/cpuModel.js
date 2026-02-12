@@ -73,11 +73,13 @@ export class CPUModel {
         context.fillRect(0, 0, canvas.width, canvas.height);
 
         // Dynamic font size based on label length
-        // Short labels (PC, IR, R0, CU) get MASSIVE text
-        // Longer labels (MEM, MDR, MAR, ALU) get slightly smaller text to fit
-        let fontScale = 0.55; // Even bigger for short labels
-        if (label.length > 2) {
-            fontScale = 0.28; // Reduced slightly for 3+ chars to prevent overflow
+        // Short labels (PC, IR, CU) get MASSIVE text
+        // 3-char labels (MEM, MDR, MAR, ALU) get mid-sized text
+        let fontScale = 0.55;
+        if (label.length === 3) {
+            fontScale = 0.45; // Increased from 0.28 for better mobile clarity
+        } else if (label.length > 3) {
+            fontScale = 0.28; // Reduced for 4+ chars to prevent overflow
         }
 
         const fontSize = Math.floor(width * fontScale);
@@ -299,8 +301,8 @@ export class CPUModel {
             this.components[regName] = register;
 
             // --- LARGER VALUE DISPLAY BOX ---
-            const valSize = 0.18 * this.scaleFactor;
-            const valGeo = new THREE.BoxGeometry(valSize, valSize, valSize * 0.4);
+            const valSize = 0.22 * this.scaleFactor; // Match register size
+            const valGeo = new THREE.BoxGeometry(valSize, valSize, valSize * 0.5);
 
             // Default value '0'
             const valTex = this.createValueTexture('0');
@@ -325,30 +327,24 @@ export class CPUModel {
     createValueTexture(text) {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        canvas.width = 256;
-        canvas.height = 256;
+        canvas.width = 512; // Doubled resolution
+        canvas.height = 512;
 
-        // White background with subtle gradient
-        const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, '#FFFFFF');
-        gradient.addColorStop(1, '#F0F0F0');
-        context.fillStyle = gradient;
+        // Pure white background for max contrast
+        context.fillStyle = '#FFFFFF';
         context.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Thick border
+        // Thick black border
         context.strokeStyle = '#000000';
-        context.lineWidth = 12;
-        context.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
+        context.lineWidth = 30;
+        context.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
 
-        // MUCH LARGER text
-        context.font = 'Bold 140px Arial';
+        // MASSIVE high-contrast text
+        context.font = '900 320px Arial, sans-serif';
         context.fillStyle = '#000000';
-        context.strokeStyle = '#CCCCCC';
-        context.lineWidth = 4;
         context.textAlign = 'center';
         context.textBaseline = 'middle';
 
-        context.strokeText(text, canvas.width / 2, canvas.height / 2);
         context.fillText(text, canvas.width / 2, canvas.height / 2);
 
         return new THREE.CanvasTexture(canvas);

@@ -51,6 +51,10 @@ body {
     position: fixed;
     inset: 0;
     z-index: 1;
+    touch-action: none;
+    /* Prevents browser handling (scroll/pinch) so Three.js can have it */
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* ============================================================
