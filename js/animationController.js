@@ -257,7 +257,61 @@ export class AnimationController {
         if (instructionElement) {
             const displayName = this.getInstructionDisplayName(instruction);
             instructionElement.textContent = displayName;
+
+            // Update binary opcode display
+            this.updateOpcode(instruction);
         }
+    }
+
+    /**
+     * Update 16-bit binary opcode display based on instruction
+     */
+    updateOpcode(instruction) {
+        const opcodeElement = document.getElementById('binary-opcode');
+        if (!opcodeElement) return;
+
+        // Default: 0000 0000 0000 0000
+        let binary = "0000 0000 0000 0000";
+
+        if (!instruction || instruction === 'None') {
+            opcodeElement.textContent = binary;
+            return;
+        }
+
+        // Mapping from requirement
+        const mapping = {
+            'MOV R1, #5': '0001 0001 0000 0101',
+            'ADD R1, R2': '0010 0001 0010 0000',
+            'SUB R1, R2': '0011 0001 0010 0000',
+            'MUL R2, R3': '0100 0010 0011 0000',
+            'DIV R1, R2': '0101 0001 0010 0000',
+            'AND R2, R3': '0110 0010 0011 0000',
+            'LOAD R1, [100]': '0111 0001 0110 0100',
+            'STORE R2, [200]': '1000 0010 1100 1000'
+        };
+
+        // Internal ID Mapping
+        const internalIdMapping = {
+            'MOV_R1_5': '0001 0001 0000 0101',
+            'ADD_R1_R2': '0010 0001 0010 0000',
+            'SUB_R1_R2': '0011 0001 0010 0000',
+            'MUL_R2_R3': '0100 0010 0011 0000',
+            'DIV_R1_R2': '0101 0001 0010 0000',
+            'AND_R2_R3': '0110 0010 0011 0000',
+            'LOAD_R1_100': '0111 0001 0110 0100',
+            'STORE_R2_200': '1000 0010 1100 1000'
+        };
+
+        // Try direct lookup (internal ID)
+        if (internalIdMapping[instruction]) {
+            binary = internalIdMapping[instruction];
+        } else {
+            // Try lookup by display name (user input or resolved display name)
+            const displayName = this.getInstructionDisplayName(instruction);
+            binary = mapping[displayName] || binary;
+        }
+
+        opcodeElement.textContent = binary;
     }
 
     /**

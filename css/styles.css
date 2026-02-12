@@ -605,6 +605,24 @@ body {
     font-weight: bold;
 }
 
+/* ---------- Opcode Display ---------- */
+#opcode-display {
+    margin-top: -5px;
+    /* Pull closer to Execution Status */
+    border: 1.5px solid var(--accent);
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.25);
+    transition: all 0.3s ease;
+}
+
+#binary-opcode {
+    font-family: var(--font-mono);
+    font-size: clamp(0.95rem, 1vw + 0.35rem, 1.15rem);
+    color: var(--accent-green);
+    letter-spacing: 2px;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+}
+
 /* ---------- Legend Section ---------- */
 .legend-section {
     padding: 8px;
