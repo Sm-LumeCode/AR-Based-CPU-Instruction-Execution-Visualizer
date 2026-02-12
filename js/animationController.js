@@ -34,6 +34,11 @@ export class AnimationController {
         this.speedMultiplier = 1.0;
         this.isAnimating = false;
         this.currentInstruction = null;
+        
+        // Track last executed instruction for replay
+        this.lastInstructionName = null;  // For predefined buttons (e.g., "ADD_R1_R2")
+        this.lastParsedInstruction = null; // For user input instructions
+        this.shouldInterrupt = false;      // Flag to interrupt current animation
     }
 
     /**
@@ -71,13 +76,20 @@ export class AnimationController {
      * Execute predefined instruction (from buttons)
      */
     async executeInstruction(instructionName) {
-        if (this.isAnimating) {
+        if (this.isAnimating && !this.shouldInterrupt) {
             console.log('Animation already in progress');
             return;
         }
 
+        // Stop current animation if interrupting
+        if (this.shouldInterrupt) {
+            this.shouldInterrupt = false;
+            await this.stopCurrentAnimation();
+        }
+
         this.isAnimating = true;
         this.currentInstruction = instructionName;
+        this.shouldInterrupt = false;
 
         // Update UI
         this.updateInstructionDisplay(instructionName);
@@ -90,6 +102,14 @@ export class AnimationController {
                 await this.microOperationMode.execute(instructionName, this.speedMultiplier);
             }
 
+            // Check if interrupted
+            if (this.shouldInterrupt) {
+                console.log('Animation interrupted');
+                this.isAnimating = false;
+                this.shouldInterrupt = false;
+                return;
+            }
+
             // Update logical state
             this.cpuState.executeInstruction(instructionName);
 
@@ -97,6 +117,10 @@ export class AnimationController {
             ['R0', 'R1', 'R2', 'R3'].forEach(reg => {
                 this.cpuModel.updateRegisterDisplay(reg, this.cpuState.getRegister(reg));
             });
+
+            // Track last executed instruction
+            this.lastInstructionName = instructionName;
+            this.lastParsedInstruction = null; // Clear user instruction
 
         } catch (error) {
             console.error('Animation error:', error);
@@ -115,7 +139,7 @@ export class AnimationController {
      * TEMPLATE MATCHING ONLY - NO COMPUTATION
      */
     async executeUserInstruction(userInput) {
-        if (this.isAnimating) {
+        if (this.isAnimating && !this.shouldInterrupt) {
             return { success: false, error: 'Animation already in progress' };
         }
 
@@ -126,8 +150,15 @@ export class AnimationController {
             return { success: false, error: parsed.error };
         }
 
+        // Stop current animation if interrupting
+        if (this.shouldInterrupt) {
+            this.shouldInterrupt = false;
+            await this.stopCurrentAnimation();
+        }
+
         this.isAnimating = true;
         this.currentInstruction = parsed.displayName;
+        this.shouldInterrupt = false;
 
         // Update UI
         this.updateInstructionDisplay(parsed.displayName);
@@ -143,6 +174,14 @@ export class AnimationController {
                 await this.executeCustomMicroOps(sequence);
             }
 
+            // Check if interrupted
+            if (this.shouldInterrupt) {
+                console.log('Animation interrupted');
+                this.isAnimating = false;
+                this.shouldInterrupt = false;
+                return { success: false, error: 'Animation interrupted' };
+            }
+
             // Update logical state
             this.cpuState.executeInstruction(parsed.type, parsed.params);
 
@@ -151,13 +190,21 @@ export class AnimationController {
                 this.cpuModel.updateRegisterDisplay(reg, this.cpuState.getRegister(reg));
             });
 
+            // Track last executed instruction
+            this.lastParsedInstruction = parsed;
+            this.lastInstructionName = null; // Clear button instruction
+
             this.isAnimating = false;
             this.currentInstruction = null;
 
             // Reset UI
             this.updateStageDisplay('Ready', 'Enter another instruction or select from examples');
 
-            return { success: true, message: 'Instruction executed successfully' };
+            return { 
+                success: true, 
+                message: 'Instruction executed successfully',
+                parsed: parsed  // Return parsed instruction with binary data
+            };
 
         } catch (error) {
             console.error('User instruction error:', error);
@@ -245,13 +292,19 @@ export class AnimationController {
     }
 
     /**
-     * Reset visualization
+     * Reset visualization AND register values
      */
     reset() {
+        // Stop any running animation
+        this.shouldInterrupt = true;
+        
         this.cpuModel.resetAll();
         this.dataFlow.clearAllTokens();
         this.isAnimating = false;
         this.currentInstruction = null;
+
+        // Reset all register values to 0
+        this.resetRegisters();
 
         this.updateStageDisplay('Ready', 'Enter an instruction or select from examples');
         this.updateInstructionDisplay('None');
@@ -267,6 +320,102 @@ export class AnimationController {
         // Clear error message
         const errorMsg = document.getElementById('instruction-error');
         if (errorMsg) errorMsg.textContent = '';
+        
+        console.log('✓ System reset - all registers cleared');
+    }
+
+    /**
+     * Replay last executed instruction
+     * Stops current animation if running and restarts from beginning
+     */
+    async replay() {
+        if (!this.lastInstructionName && !this.lastParsedInstruction) {
+            console.log('No instruction to replay');
+            return { success: false, error: 'No instruction to replay' };
+        }
+
+        console.log('🔄 Replaying last instruction...');
+
+        // Set interrupt flag to stop current animation
+        this.shouldInterrupt = true;
+        
+        // Wait a moment for animation to stop
+        await this.delay(100);
+
+        // Replay the appropriate instruction type
+        if (this.lastInstructionName) {
+            // Replay predefined button instruction
+            await this.executeInstruction(this.lastInstructionName);
+            return { success: true };
+        } else if (this.lastParsedInstruction) {
+            // Replay user-entered instruction
+            // Re-execute using the parsed data
+            this.isAnimating = true;
+            this.currentInstruction = this.lastParsedInstruction.displayName;
+            this.shouldInterrupt = false;
+
+            this.updateInstructionDisplay(this.lastParsedInstruction.displayName);
+
+            try {
+                let sequence;
+                if (this.currentMode === 'instruction-cycle') {
+                    sequence = this.generator.generateInstructionCycleSequence(this.lastParsedInstruction);
+                    await this.executeCustomInstructionCycle(sequence);
+                } else {
+                    sequence = this.generator.generateMicroOpSequence(this.lastParsedInstruction);
+                    await this.executeCustomMicroOps(sequence);
+                }
+
+                if (this.shouldInterrupt) {
+                    console.log('Replay interrupted');
+                    this.isAnimating = false;
+                    this.shouldInterrupt = false;
+                    return { success: false, error: 'Replay interrupted' };
+                }
+
+                // Update logical state
+                this.cpuState.executeInstruction(this.lastParsedInstruction.type, this.lastParsedInstruction.params);
+
+                // Sync visual state
+                ['R0', 'R1', 'R2', 'R3'].forEach(reg => {
+                    this.cpuModel.updateRegisterDisplay(reg, this.cpuState.getRegister(reg));
+                });
+
+                this.isAnimating = false;
+                this.currentInstruction = null;
+                this.updateStageDisplay('Ready', 'Enter another instruction or select from examples');
+
+                return { 
+                    success: true,
+                    parsed: this.lastParsedInstruction
+                };
+
+            } catch (error) {
+                console.error('Replay error:', error);
+                this.isAnimating = false;
+                this.currentInstruction = null;
+                return { success: false, error: 'Replay error occurred' };
+            }
+        }
+    }
+
+    /**
+     * Stop current animation
+     */
+    async stopCurrentAnimation() {
+        this.cpuModel.resetAll();
+        this.dataFlow.clearAllTokens();
+        await this.delay(200);
+    }
+
+    /**
+     * Reset all register values to 0
+     */
+    resetRegisters() {
+        ['R0', 'R1', 'R2', 'R3'].forEach(reg => {
+            this.cpuState.setRegister(reg, 0);
+            this.cpuModel.updateRegisterDisplay(reg, 0);
+        });
     }
 
     /**

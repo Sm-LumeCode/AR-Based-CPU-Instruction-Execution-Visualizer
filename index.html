@@ -36,7 +36,10 @@
     <div id="control-panel">
         <div class="panel-header">
             <h2>🎯 CPU Visualizer</h2>
-            <button id="reset-btn" class="control-btn reset-btn">Reset</button>
+            <div class="control-buttons">
+                <button id="replay-btn" class="control-btn replay-btn" disabled>Replay</button>
+                <button id="reset-btn" class="control-btn reset-btn">Reset</button>
+            </div>
         </div>
 
         <!-- Mode Selection -->
@@ -136,6 +139,57 @@
                     <div class="inst-meaning">Store register to memory</div>
                     <div class="inst-flow">R2 → MEM[200]</div>
                 </button>
+            </div>
+        </div>
+
+        <!-- Binary Instruction Display -->
+        <div class="binary-section">
+            <h3>🔢 Binary Instruction View</h3>
+            <div id="binary-display" class="binary-content">
+                <div class="binary-main">
+                    <div class="binary-field">
+                        <label>Assembly:</label>
+                        <span id="asm-display" class="value-display">-</span>
+                    </div>
+                    <div class="binary-field">
+                        <label>Binary:</label>
+                        <span id="bin-display" class="value-display monospace">---- ---- ---- ----</span>
+                    </div>
+                    <div class="binary-field">
+                        <label>Hexadecimal:</label>
+                        <span id="hex-display" class="value-display monospace">0x----</span>
+                    </div>
+                </div>
+                
+                <div class="field-breakdown">
+                    <h4>📊 Field Breakdown:</h4>
+                    <div class="breakdown-table">
+                        <div class="breakdown-row">
+                            <span class="field-label">Opcode:</span>
+                            <span id="opcode-bits" class="monospace">----</span>
+                            <span id="opcode-name" class="field-value">-</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="field-label">Reg 1:</span>
+                            <span id="reg1-bits" class="monospace">--</span>
+                            <span id="reg1-name" class="field-value">-</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="field-label">Reg 2:</span>
+                            <span id="reg2-bits" class="monospace">--</span>
+                            <span id="reg2-name" class="field-value">-</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="field-label">Immediate:</span>
+                            <span id="imm-bits" class="monospace">--------</span>
+                            <span id="imm-value" class="field-value">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="binary-help">
+                    <small>💡 16-bit format: [Opcode:4][Reg1:2][Reg2:2][Imm:8]</small>
+                </div>
             </div>
         </div>
 

@@ -5,10 +5,15 @@
  * NOW SUPPORTS: MOV, ADD, SUB, MUL, DIV, AND, LOAD, STORE
  */
 
+import { InstructionEncoder } from './instructionEncoder.js';
+
 export class InstructionParser {
     constructor() {
         // Valid registers only
         this.validRegisters = ['R0', 'R1', 'R2', 'R3'];
+        
+        // Binary encoder
+        this.encoder = new InstructionEncoder();
 
         // Template patterns (case-insensitive)
         this.patterns = {
@@ -43,120 +48,136 @@ export class InstructionParser {
         // Try MOV pattern
         const movMatch = trimmed.match(this.patterns.MOV);
         if (movMatch) {
+            const params = {
+                destReg: movMatch[1].toUpperCase(),
+                immediate: movMatch[2]
+            };
             return {
                 valid: true,
                 type: 'MOV',
-                params: {
-                    destReg: movMatch[1].toUpperCase(),
-                    immediate: movMatch[2]
-                },
+                params: params,
                 displayName: `MOV ${movMatch[1].toUpperCase()}, #${movMatch[2]}`,
-                instructionKey: 'MOV_TEMPLATE'
+                instructionKey: 'MOV_TEMPLATE',
+                binary: this.encoder.encode('MOV', params)
             };
         }
 
         // Try ADD pattern
         const addMatch = trimmed.match(this.patterns.ADD);
         if (addMatch) {
+            const params = {
+                destReg: addMatch[1].toUpperCase(),
+                sourceReg: addMatch[2].toUpperCase()
+            };
             return {
                 valid: true,
                 type: 'ADD',
-                params: {
-                    destReg: addMatch[1].toUpperCase(),
-                    sourceReg: addMatch[2].toUpperCase()
-                },
+                params: params,
                 displayName: `ADD ${addMatch[1].toUpperCase()}, ${addMatch[2].toUpperCase()}`,
-                instructionKey: 'ADD_TEMPLATE'
+                instructionKey: 'ADD_TEMPLATE',
+                binary: this.encoder.encode('ADD', params)
             };
         }
 
         // Try SUB pattern
         const subMatch = trimmed.match(this.patterns.SUB);
         if (subMatch) {
+            const params = {
+                destReg: subMatch[1].toUpperCase(),
+                sourceReg: subMatch[2].toUpperCase()
+            };
             return {
                 valid: true,
                 type: 'SUB',
-                params: {
-                    destReg: subMatch[1].toUpperCase(),
-                    sourceReg: subMatch[2].toUpperCase()
-                },
+                params: params,
                 displayName: `SUB ${subMatch[1].toUpperCase()}, ${subMatch[2].toUpperCase()}`,
-                instructionKey: 'SUB_TEMPLATE'
+                instructionKey: 'SUB_TEMPLATE',
+                binary: this.encoder.encode('SUB', params)
             };
         }
 
         // Try MUL pattern
         const mulMatch = trimmed.match(this.patterns.MUL);
         if (mulMatch) {
+            const params = {
+                destReg: mulMatch[1].toUpperCase(),
+                sourceReg: mulMatch[2].toUpperCase()
+            };
             return {
                 valid: true,
                 type: 'MUL',
-                params: {
-                    destReg: mulMatch[1].toUpperCase(),
-                    sourceReg: mulMatch[2].toUpperCase()
-                },
+                params: params,
                 displayName: `MUL ${mulMatch[1].toUpperCase()}, ${mulMatch[2].toUpperCase()}`,
-                instructionKey: 'MUL_TEMPLATE'
+                instructionKey: 'MUL_TEMPLATE',
+                binary: this.encoder.encode('MUL', params)
             };
         }
 
         // Try DIV pattern
         const divMatch = trimmed.match(this.patterns.DIV);
         if (divMatch) {
+            const params = {
+                destReg: divMatch[1].toUpperCase(),
+                sourceReg: divMatch[2].toUpperCase()
+            };
             return {
                 valid: true,
                 type: 'DIV',
-                params: {
-                    destReg: divMatch[1].toUpperCase(),
-                    sourceReg: divMatch[2].toUpperCase()
-                },
+                params: params,
                 displayName: `DIV ${divMatch[1].toUpperCase()}, ${divMatch[2].toUpperCase()}`,
-                instructionKey: 'DIV_TEMPLATE'
+                instructionKey: 'DIV_TEMPLATE',
+                binary: this.encoder.encode('DIV', params)
             };
         }
 
         // Try AND pattern
         const andMatch = trimmed.match(this.patterns.AND);
         if (andMatch) {
+            const params = {
+                destReg: andMatch[1].toUpperCase(),
+                sourceReg: andMatch[2].toUpperCase()
+            };
             return {
                 valid: true,
                 type: 'AND',
-                params: {
-                    destReg: andMatch[1].toUpperCase(),
-                    sourceReg: andMatch[2].toUpperCase()
-                },
+                params: params,
                 displayName: `AND ${andMatch[1].toUpperCase()}, ${andMatch[2].toUpperCase()}`,
-                instructionKey: 'AND_TEMPLATE'
+                instructionKey: 'AND_TEMPLATE',
+                binary: this.encoder.encode('AND', params)
             };
         }
 
         // Try LOAD pattern
         const loadMatch = trimmed.match(this.patterns.LOAD);
         if (loadMatch) {
+            const params = {
+                destReg: loadMatch[1].toUpperCase(),
+                address: loadMatch[2]
+            };
             return {
                 valid: true,
                 type: 'LOAD',
-                params: {
-                    destReg: loadMatch[1].toUpperCase(),
-                    address: loadMatch[2]
-                },
+                params: params,
                 displayName: `LOAD ${loadMatch[1].toUpperCase()}, [${loadMatch[2]}]`,
-                instructionKey: 'LOAD_TEMPLATE'
+                instructionKey: 'LOAD_TEMPLATE',
+                binary: this.encoder.encode('LOAD', params)
             };
         }
 
         // Try STORE pattern
         const storeMatch = trimmed.match(this.patterns.STORE);
         if (storeMatch) {
+            const params = {
+                sourceReg: storeMatch[1].toUpperCase(),
+                address: storeMatch[2]
+            };
             return {
                 valid: true,
                 type: 'STORE',
-                params: {
-                    sourceReg: storeMatch[1].toUpperCase(),
-                    address: storeMatch[2]
-                },
+                params: params,
                 displayName: `STORE ${storeMatch[1].toUpperCase()}, [${storeMatch[2]}]`,
-                instructionKey: 'STORE_TEMPLATE'
+                instructionKey: 'STORE_TEMPLATE',
+                binary: this.encoder.encode('STORE', params)
             };
         }
 

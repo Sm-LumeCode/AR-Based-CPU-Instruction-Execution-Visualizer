@@ -163,6 +163,12 @@ body {
     white-space: nowrap;
 }
 
+.control-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 .control-btn {
     background: var(--accent-red);
     color: white;
@@ -176,9 +182,30 @@ body {
     white-space: nowrap;
 }
 
-.control-btn:hover {
-    background: #ff6666;
+.control-btn:hover:not(:disabled) {
     transform: translateY(-1px);
+}
+
+.reset-btn {
+    background: var(--accent-red);
+}
+
+.reset-btn:hover:not(:disabled) {
+    background: #ff6666;
+}
+
+.replay-btn {
+    background: #4488ff;
+}
+
+.replay-btn:hover:not(:disabled) {
+    background: #6699ff;
+}
+
+.control-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 /* ---------- Section headings ---------- */
@@ -445,6 +472,117 @@ body {
     font-family: var(--font-mono);
     border: 1px solid var(--accent-green);
     word-break: break-all;
+}
+
+/* ---------- Binary Instruction Display Section ---------- */
+.binary-section {
+    margin-bottom: 12px;
+    padding: 10px;
+    background: linear-gradient(135deg, rgba(0, 255, 100, 0.08) 0%, rgba(0, 200, 255, 0.08) 100%);
+    border: 2px solid var(--accent-green);
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 255, 100, 0.2);
+}
+
+.binary-section h3 {
+    margin-bottom: 8px;
+}
+
+.binary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.binary-main {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.binary-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 6px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 100, 0.2);
+}
+
+.binary-field label {
+    font-size: clamp(0.72rem, 0.75vw + 0.26rem, 0.88rem);
+    color: #aaffaa;
+    font-weight: 600;
+    min-width: 80px;
+}
+
+.value-display {
+    font-size: clamp(0.75rem, 0.78vw + 0.28rem, 0.92rem);
+    color: var(--accent-green);
+    font-weight: bold;
+    text-align: right;
+}
+
+.monospace {
+    font-family: var(--font-mono);
+    letter-spacing: 1px;
+}
+
+.field-breakdown {
+    margin-top: 6px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+.field-breakdown h4 {
+    font-size: clamp(0.75rem, 0.78vw + 0.28rem, 0.92rem);
+    color: var(--accent);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.breakdown-table {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.breakdown-row {
+    display: grid;
+    grid-template-columns: 80px 90px 1fr;
+    gap: 8px;
+    align-items: center;
+    padding: 3px 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 3px;
+    font-size: clamp(0.7rem, 0.72vw + 0.25rem, 0.85rem);
+}
+
+.field-label {
+    color: #aaffff;
+    font-weight: 600;
+}
+
+.field-value {
+    color: var(--accent-yellow);
+    font-weight: bold;
+}
+
+.binary-help {
+    text-align: center;
+    padding: 6px;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.binary-help small {
+    font-size: clamp(0.68rem, 0.7vw + 0.24rem, 0.82rem);
+    color: #aaffff;
+    font-family: var(--font-mono);
 }
 
 /* ---------- Info Section (Execution Status) ---------- */

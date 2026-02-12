@@ -17,6 +17,7 @@ export class UI {
         this.setupSpeedButtons();
         this.setupInstructionButtons();
         this.setupUserInput();
+        this.setupReplayButton();
         this.setupResetButton();
     }
 
@@ -78,11 +79,22 @@ export class UI {
                 this.disableButtons(true);
                 this.clearError();
 
+                // Parse the instruction code from button to get binary
+                const instCode = button.querySelector('.inst-code');
+                if (instCode) {
+                    const assemblyText = instCode.textContent.trim();
+                    const parsed = this.animationController.parser.parse(assemblyText);
+                    if (parsed.valid && parsed.binary) {
+                        this.updateBinaryDisplay(parsed.binary, parsed.displayName);
+                    }
+                }
+
                 // Execute instruction
                 await this.animationController.executeInstruction(instruction);
 
-                // Re-enable buttons
+                // Re-enable buttons and enable replay
                 this.disableButtons(false);
+                this.enableReplayButton();
             });
         });
     }
@@ -134,6 +146,15 @@ export class UI {
             // Success - clear input and error
             if (input) input.value = '';
             this.clearError();
+            
+            // Update binary display with parsed instruction data
+            if (result.parsed && result.parsed.binary) {
+                this.updateBinaryDisplay(result.parsed.binary, result.parsed.displayName);
+            }
+            
+            // Enable replay button
+            this.enableReplayButton();
+            
             console.log('✓ User instruction executed:', userText);
         } else {
             // Error - show message
@@ -167,7 +188,113 @@ export class UI {
     }
 
     /**
-     * Reset button
+     * Update binary instruction display
+     * @param {object} binaryData - Binary encoding data from encoder
+     * @param {string} assembly - Assembly instruction text
+     */
+    updateBinaryDisplay(binaryData, assembly) {
+        if (!binaryData) {
+            this.clearBinaryDisplay();
+            return;
+        }
+
+        // Update main fields
+        const asmDisplay = document.getElementById('asm-display');
+        const binDisplay = document.getElementById('bin-display');
+        const hexDisplay = document.getElementById('hex-display');
+
+        if (asmDisplay) asmDisplay.textContent = assembly || '-';
+        if (binDisplay) binDisplay.textContent = binaryData.binaryFormatted || '---- ---- ---- ----';
+        if (hexDisplay) hexDisplay.textContent = binaryData.hex || '0x----';
+
+        // Update field breakdown
+        if (binaryData.fields) {
+            const opcodeBits = document.getElementById('opcode-bits');
+            const opcodeName = document.getElementById('opcode-name');
+            const reg1Bits = document.getElementById('reg1-bits');
+            const reg1Name = document.getElementById('reg1-name');
+            const reg2Bits = document.getElementById('reg2-bits');
+            const reg2Name = document.getElementById('reg2-name');
+            const immBits = document.getElementById('imm-bits');
+            const immValue = document.getElementById('imm-value');
+
+            if (opcodeBits) opcodeBits.textContent = binaryData.fields.opcode.binary;
+            if (opcodeName) opcodeName.textContent = binaryData.fields.opcode.name;
+            
+            if (reg1Bits) reg1Bits.textContent = binaryData.fields.reg1.binary;
+            if (reg1Name) reg1Name.textContent = binaryData.fields.reg1.name;
+            
+            if (reg2Bits) reg2Bits.textContent = binaryData.fields.reg2.binary;
+            if (reg2Name) reg2Name.textContent = binaryData.fields.reg2.name;
+            
+            if (immBits) immBits.textContent = binaryData.fields.immediate.binary;
+            if (immValue) immValue.textContent = binaryData.fields.immediate.value;
+        }
+
+        console.log('✓ Binary display updated:', binaryData.hex);
+    }
+
+    /**
+     * Clear binary display (reset to default)
+     */
+    clearBinaryDisplay() {
+        const asmDisplay = document.getElementById('asm-display');
+        const binDisplay = document.getElementById('bin-display');
+        const hexDisplay = document.getElementById('hex-display');
+
+        if (asmDisplay) asmDisplay.textContent = '-';
+        if (binDisplay) binDisplay.textContent = '---- ---- ---- ----';
+        if (hexDisplay) hexDisplay.textContent = '0x----';
+
+        // Clear breakdown
+        const opcodeBits = document.getElementById('opcode-bits');
+        const opcodeName = document.getElementById('opcode-name');
+        const reg1Bits = document.getElementById('reg1-bits');
+        const reg1Name = document.getElementById('reg1-name');
+        const reg2Bits = document.getElementById('reg2-bits');
+        const reg2Name = document.getElementById('reg2-name');
+        const immBits = document.getElementById('imm-bits');
+        const immValue = document.getElementById('imm-value');
+
+        if (opcodeBits) opcodeBits.textContent = '----';
+        if (opcodeName) opcodeName.textContent = '-';
+        if (reg1Bits) reg1Bits.textContent = '--';
+        if (reg1Name) reg1Name.textContent = '-';
+        if (reg2Bits) reg2Bits.textContent = '--';
+        if (reg2Name) reg2Name.textContent = '-';
+        if (immBits) immBits.textContent = '--------';
+        if (immValue) immValue.textContent = '-';
+    }
+
+    /**
+     * Replay button - restarts last instruction animation
+     */
+    setupReplayButton() {
+        const replayBtn = document.getElementById('replay-btn');
+
+        if (replayBtn) {
+            replayBtn.addEventListener('click', async () => {
+                // Disable buttons during replay
+                this.disableButtons(true);
+                
+                const result = await this.animationController.replay();
+                
+                // Update binary display if user instruction was replayed
+                if (result.success && result.parsed && result.parsed.binary) {
+                    this.updateBinaryDisplay(result.parsed.binary, result.parsed.displayName);
+                }
+                
+                // Re-enable buttons
+                this.disableButtons(false);
+                this.enableReplayButton();
+                
+                console.log('✓ Instruction replayed');
+            });
+        }
+    }
+
+    /**
+     * Reset button - clears registers and visual state
      */
     setupResetButton() {
         const resetBtn = document.getElementById('reset-btn');
@@ -176,6 +303,8 @@ export class UI {
             resetBtn.addEventListener('click', () => {
                 this.animationController.reset();
                 this.clearError();
+                this.clearBinaryDisplay();
+                this.disableReplayButton();
                 console.log('✓ System reset');
             });
         }
@@ -209,6 +338,30 @@ export class UI {
                 executeBtn.style.opacity = '1';
                 executeBtn.style.cursor = 'pointer';
             }
+        }
+    }
+
+    /**
+     * Enable replay button
+     */
+    enableReplayButton() {
+        const replayBtn = document.getElementById('replay-btn');
+        if (replayBtn) {
+            replayBtn.disabled = false;
+            replayBtn.style.opacity = '1';
+            replayBtn.style.cursor = 'pointer';
+        }
+    }
+
+    /**
+     * Disable replay button
+     */
+    disableReplayButton() {
+        const replayBtn = document.getElementById('replay-btn');
+        if (replayBtn) {
+            replayBtn.disabled = true;
+            replayBtn.style.opacity = '0.5';
+            replayBtn.style.cursor = 'not-allowed';
         }
     }
 }
