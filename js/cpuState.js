@@ -11,6 +11,18 @@ export class CPUState {
             'R2': 0,
             'R3': 0
         };
+        // Simple memory storage (Address -> Value)
+        this.memory = {};
+    }
+
+    getMemory(address) {
+        // Default any address to 0 if not set
+        return this.memory[address] || 0;
+    }
+
+    setMemory(address, value) {
+        this.memory[address] = parseInt(value);
+        console.log(`[CPU State] Memory at [${address}] updated to ${this.memory[address]}`);
     }
 
     getRegister(name) {
@@ -67,9 +79,19 @@ export class CPUState {
                 this.handleALU(operands.destReg, operands.sourceReg, (a, b) => a & b);
                 break;
 
-            // LOAD/STORE technically interact with memory, but for this task 
-            // we primarily care about registers. We can implement dummy memory or just ignore for now
-            // unless requested. User only asked for Registers R0-R3.
+            case 'LOAD':
+                if (operands.destReg && operands.address !== undefined) {
+                    const value = this.getMemory(operands.address);
+                    this.setRegister(operands.destReg, value);
+                }
+                break;
+
+            case 'STORE':
+                if (operands.sourceReg && operands.address !== undefined) {
+                    const value = this.getRegister(operands.sourceReg);
+                    this.setMemory(operands.address, value);
+                }
+                break;
         }
     }
 
@@ -86,7 +108,7 @@ export class CPUState {
     handleLegacyInstruction(instructionName) {
         // Simple mapping for the buttons
         const parts = instructionName.split('_');
-        const op = parts[0];
+        const op = parts[0].toUpperCase();
 
         if (op === 'MOV') {
             // MOV_R1_5 -> R1 = 5
@@ -94,10 +116,20 @@ export class CPUState {
             const val = parseInt(parts[2]);
             this.setRegister(reg, val);
         } else if (['ADD', 'SUB', 'MUL', 'DIV', 'AND'].includes(op)) {
-            // ADD_R1_R2 -> R1 = R1 + R2 (Assuming R1 is dest based on parser naming)
+            // ADD_R1_R2 -> R1 = R1 + R2
             const dest = parts[1];
             const src = parts[2];
             this.executeInstruction(op, { destReg: dest, sourceReg: src });
+        } else if (op === 'LOAD') {
+            // LOAD_R1_100 -> R1 = Memory[100]
+            const dest = parts[1];
+            const addr = parts[2];
+            this.executeInstruction(op, { destReg: dest, address: addr });
+        } else if (op === 'STORE') {
+            // STORE_R2_200 -> Memory[200] = R2
+            const src = parts[1];
+            const addr = parts[2];
+            this.executeInstruction(op, { sourceReg: src, address: addr });
         }
     }
 }

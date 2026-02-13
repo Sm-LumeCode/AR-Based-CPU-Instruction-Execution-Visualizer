@@ -112,6 +112,9 @@ export class AnimationController {
                 this.cpuModel.updateRegisterDisplay(reg, this.cpuState.getRegister(reg));
             });
 
+            // Final sync for opcode display 
+            this.updateOpcode(instructionName);
+
             this.lastInstructionName = instructionName;
             this.lastParsedInstruction = null;
 
@@ -134,7 +137,7 @@ export class AnimationController {
             await this.abortCurrentAnimation();
         }
 
-        const parsed = this.parser.parse(userInput);
+        const parsed = this.parser.parse(userInput, this.cpuState);
         if (!parsed.valid) return { success: false, error: parsed.error };
 
         // Track instruction immediately for Replay support
@@ -176,11 +179,17 @@ export class AnimationController {
             });
 
             // Track last executed instruction
-            this.lastParsedInstruction = parsed;
+            const updatedParsed = this.parser.parse(parsed.displayName, this.cpuState);
+            this.lastParsedInstruction = updatedParsed;
             this.lastInstructionName = null; // Clear button instruction
+
+            // Final sync for opcode display (in case memory values changed)
+            this.updateOpcode(parsed.displayName);
 
             this.isAnimating = false;
             this.currentInstruction = null;
+
+            return { success: true, parsed: updatedParsed };
 
             // Reset UI
             this.updateStageDisplay('Ready', 'Enter another instruction or select from examples');
@@ -262,47 +271,32 @@ export class AnimationController {
         if (!opcodeElement) return;
 
         // Default: 0000 0000 0000 0000
-        let binary = "0000 0000 0000 0000";
+        const defaultBinary = "0000 0000 0000 0000";
 
         if (!instruction || instruction === 'None') {
-            opcodeElement.textContent = binary;
+            opcodeElement.textContent = defaultBinary;
             return;
         }
 
-        // Mapping from requirement
-        const mapping = {
-            'MOV R1, #5': '0001 0100 0000 0101',
-            'ADD R1, R2': '0010 0110 0000 0000',
-            'SUB R1, R2': '0011 0110 0000 0000',
-            'MUL R2, R3': '0100 1011 0000 0000',
-            'DIV R1, R2': '0101 0110 0000 0000',
-            'AND R2, R3': '0110 1011 0000 0000',
-            'LOAD R1, [100]': '0111 0100 0110 0100',
-            'STORE R2, [200]': '1000 1000 1100 1000'
-        };
-
-        // Internal ID Mapping
-        const internalIdMapping = {
-            'MOV_R1_5': '0001 0100 0000 0101',
-            'ADD_R1_R2': '0010 0110 0000 0000',
-            'SUB_R1_R2': '0011 0110 0000 0000',
-            'MUL_R2_R3': '0100 1011 0000 0000',
-            'DIV_R1_R2': '0101 0110 0000 0000',
-            'AND_R2_R3': '0110 1011 0000 0000',
-            'LOAD_R1_100': '0111 0100 0110 0100',
-            'STORE_R2_200': '1000 1000 1100 1000'
-        };
-
-        // Try direct lookup (internal ID)
-        if (internalIdMapping[instruction]) {
-            binary = internalIdMapping[instruction];
-        } else {
-            // Try lookup by display name (user input or resolved display name)
-            const displayName = this.getInstructionDisplayName(instruction);
-            binary = mapping[displayName] || binary;
+        // 1. Try to parse it as an internal ID (e.g., MOV_R1_5)
+        let assembly = instruction;
+        if (instruction.includes('_')) {
+            const parts = instruction.split('_');
+            const op = parts[0];
+            if (op === 'MOV') assembly = `MOV ${parts[1]}, #${parts[2]}`;
+            else if (['ADD', 'SUB', 'MUL', 'DIV', 'AND'].includes(op)) assembly = `${op} ${parts[1]}, ${parts[2]}`;
+            else if (op === 'LOAD') assembly = `LOAD ${parts[1]}, [${parts[2]}]`;
+            else if (op === 'STORE') assembly = `STORE ${parts[1]}, [${parts[2]}]`;
         }
 
-        opcodeElement.textContent = binary;
+        // 2. Use the parser (passing cpuState) to get the dynamic binary
+        const parsed = this.parser.parse(assembly, this.cpuState);
+
+        if (parsed.valid && parsed.binary) {
+            opcodeElement.textContent = parsed.binary.binaryFormatted;
+        } else {
+            opcodeElement.textContent = defaultBinary;
+        }
     }
 
     /**

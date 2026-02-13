@@ -66,15 +66,17 @@ export class InstructionEncoder {
                 break;
 
             case 'LOAD':
-                // LOAD R1, [100] -> Reg1=dest, Immediate=address
+                // LOAD R1, [100] -> Reg1=dest, Immediate=value in memory (per user request)
                 reg1Bits = this.encodeRegister(params.destReg);
-                immediateBits = this.encodeImmediate(params.address);
+                // Use memory value if provided, otherwise 0
+                immediateBits = this.encodeImmediate(params.memoryValue !== undefined ? params.memoryValue : 0);
                 break;
 
             case 'STORE':
-                // STORE R1, [100] -> Reg1=source, Immediate=address
+                // STORE R1, [100] -> Reg1=source, Immediate=value in memory (per user request)
                 reg1Bits = this.encodeRegister(params.sourceReg || params.destReg);
-                immediateBits = this.encodeImmediate(params.address);
+                // Use memory value if provided, otherwise 0
+                immediateBits = this.encodeImmediate(params.memoryValue !== undefined ? params.memoryValue : 0);
                 break;
         }
 

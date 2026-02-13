@@ -11,7 +11,7 @@ export class InstructionParser {
     constructor() {
         // Valid registers only
         this.validRegisters = ['R0', 'R1', 'R2', 'R3'];
-        
+
         // Binary encoder
         this.encoder = new InstructionEncoder();
 
@@ -30,9 +30,10 @@ export class InstructionParser {
 
     /**
      * Parse user input and return instruction descriptor
-     * Returns: { valid: bool, type: string, params: object, error: string, displayName: string }
+     * @param {string} input - User input string
+     * @param {object} cpuState - Current CPU state (optional, for memory values)
      */
-    parse(input) {
+    parse(input, cpuState = null) {
         // Trim whitespace
         const trimmed = input.trim();
 
@@ -154,6 +155,12 @@ export class InstructionParser {
                 destReg: loadMatch[1].toUpperCase(),
                 address: loadMatch[2]
             };
+
+            // Fetch memory value if state provided
+            if (cpuState) {
+                params.memoryValue = cpuState.getMemory(params.address);
+            }
+
             return {
                 valid: true,
                 type: 'LOAD',
@@ -171,6 +178,12 @@ export class InstructionParser {
                 sourceReg: storeMatch[1].toUpperCase(),
                 address: storeMatch[2]
             };
+
+            // Fetch memory value if state provided
+            if (cpuState) {
+                params.memoryValue = cpuState.getMemory(params.address);
+            }
+
             return {
                 valid: true,
                 type: 'STORE',
