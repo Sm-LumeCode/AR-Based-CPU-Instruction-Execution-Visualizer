@@ -392,7 +392,7 @@ export class CPUModel {
         const size = 0.55 * this.scaleFactor;
         const geometry = new THREE.BoxGeometry(
             size * 0.8,
-            size * 0.75, // REDUCED from 1.0 to 0.75 for safety
+            size * 1.25, // REDUCED from 1.0 to 0.75 for safety
             size * 0.3
         );
 

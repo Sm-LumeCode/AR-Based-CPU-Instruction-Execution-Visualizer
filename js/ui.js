@@ -89,12 +89,16 @@ export class UI {
                     }
                 }
 
-                // Execute instruction
-                await this.animationController.executeInstruction(instruction);
-
-                // Re-enable buttons and enable replay
-                this.disableButtons(false);
+                // Enable replay immediately so user can restart during execution
                 this.enableReplayButton();
+
+                // Execute instruction
+                const result = await this.animationController.executeInstruction(instruction);
+
+                // Re-enable buttons only if not interrupted (replay might be starting)
+                if (result && !result.interrupted) {
+                    this.disableButtons(false);
+                }
             });
         });
     }
@@ -139,6 +143,9 @@ export class UI {
         this.disableButtons(true);
         if (input) input.disabled = true;
 
+        // Enable replay button immediately
+        this.enableReplayButton();
+
         // Execute through animation controller
         const result = await this.animationController.executeUserInstruction(userText);
 
@@ -146,15 +153,12 @@ export class UI {
             // Success - clear input and error
             if (input) input.value = '';
             this.clearError();
-            
+
             // Update binary display with parsed instruction data
             if (result.parsed && result.parsed.binary) {
                 this.updateBinaryDisplay(result.parsed.binary, result.parsed.displayName);
             }
-            
-            // Enable replay button
-            this.enableReplayButton();
-            
+
             console.log('✓ User instruction executed:', userText);
         } else {
             // Error - show message
@@ -162,9 +166,11 @@ export class UI {
             console.log('✗ Invalid instruction:', userText);
         }
 
-        // Re-enable UI
-        this.disableButtons(false);
-        if (input) input.disabled = false;
+        // Re-enable UI only if not interrupted
+        if (result && !result.interrupted) {
+            this.disableButtons(false);
+            if (input) input.disabled = false;
+        }
     }
 
     /**
@@ -220,13 +226,13 @@ export class UI {
 
             if (opcodeBits) opcodeBits.textContent = binaryData.fields.opcode.binary;
             if (opcodeName) opcodeName.textContent = binaryData.fields.opcode.name;
-            
+
             if (reg1Bits) reg1Bits.textContent = binaryData.fields.reg1.binary;
             if (reg1Name) reg1Name.textContent = binaryData.fields.reg1.name;
-            
+
             if (reg2Bits) reg2Bits.textContent = binaryData.fields.reg2.binary;
             if (reg2Name) reg2Name.textContent = binaryData.fields.reg2.name;
-            
+
             if (immBits) immBits.textContent = binaryData.fields.immediate.binary;
             if (immValue) immValue.textContent = binaryData.fields.immediate.value;
         }
@@ -276,18 +282,18 @@ export class UI {
             replayBtn.addEventListener('click', async () => {
                 // Disable buttons during replay
                 this.disableButtons(true);
-                
+
                 const result = await this.animationController.replay();
-                
+
                 // Update binary display if user instruction was replayed
                 if (result.success && result.parsed && result.parsed.binary) {
                     this.updateBinaryDisplay(result.parsed.binary, result.parsed.displayName);
                 }
-                
+
                 // Re-enable buttons
                 this.disableButtons(false);
                 this.enableReplayButton();
-                
+
                 console.log('✓ Instruction replayed');
             });
         }

@@ -6,16 +6,17 @@
 import { InstructionDefinitions } from './instructionDefinitions.js';
 
 export class InstructionCycleMode {
-    constructor(cpuModel, scene, dataFlow) {
+    constructor(cpuModel, scene, dataFlow, controller = null) {
         this.cpuModel = cpuModel;
         this.scene = scene;
         this.dataFlow = dataFlow;
+        this.controller = controller;
         this.definitions = new InstructionDefinitions();
     }
 
     async execute(instructionName, speedMultiplier = 1.0) {
         const sequence = this.definitions.getInstructionCycleSequence(instructionName);
-        
+
         if (!sequence || sequence.length === 0) {
             console.error('No instruction cycle sequence found for:', instructionName);
             return;
@@ -29,19 +30,38 @@ export class InstructionCycleMode {
         this.cpuModel.resetAll();
 
         for (const stage of sequence) {
+            // 🛑 Interrupt Check: Stop if controller requested it
+            if (this.controller && this.controller.shouldInterrupt) {
+                console.log('⚡ InstructionCycleMode: Execution Interrupted');
+                this.cpuModel.resetAll();
+                return;
+            }
+
             this.updateStageDisplay(stage.stage, stage.description);
             await this.executeStage(stage, speedMultiplier);
 
-            // Stage-level reset (KEEP THIS)
+            // 🛑 Interrupt Check: Check immediately after stage returns
+            if (this.controller && this.controller.shouldInterrupt) return;
+
+            // Stage-level reset
             this.cpuModel.resetAll();
             await this.delay(800, speedMultiplier);
+
+            // 🛑 Interrupt Check: Check after intra-stage delay
+            if (this.controller && this.controller.shouldInterrupt) return;
         }
     }
 
     async executeStage(stage, speedMultiplier) {
         for (const step of stage.steps) {
+            // 🛑 Early exit if interrupted
+            if (this.controller && this.controller.shouldInterrupt) return;
+
             this.updateActionDisplay(step);
             await this.executeStep(step, speedMultiplier);
+
+            // 🛑 Check again after step execution
+            if (this.controller && this.controller.shouldInterrupt) return;
         }
     }
 
@@ -64,8 +84,8 @@ export class InstructionCycleMode {
         // 🔧 FIX 1: Clear previous highlight so only ONE component is active
         this.cpuModel.resetAll();
 
-        // Highlight current component
-        this.cpuModel.highlightComponent(step.component, step.color);
+        // Highlight current component (always use cyan as per user request)
+        this.cpuModel.highlightComponent(step.component, 0x00ffff);
 
         // Wait for highlight duration
         await this.delay(step.duration * 1000, speedMultiplier);
@@ -77,7 +97,7 @@ export class InstructionCycleMode {
     async animateDataToken(step, speedMultiplier) {
         const fromPos = this.getComponentPosition(step.from);
         const toPos = this.getComponentPosition(step.to);
-        
+
         if (!fromPos || !toPos) {
             console.warn('Invalid component positions:', step.from, step.to);
             return;
@@ -95,7 +115,7 @@ export class InstructionCycleMode {
     async animateGlowingWire(step, speedMultiplier) {
         const fromPos = this.getComponentPosition(step.from);
         const toPos = this.getComponentPosition(step.to);
-        
+
         if (!fromPos || !toPos) {
             console.warn('Invalid component positions:', step.from, step.to);
             return;
@@ -134,7 +154,7 @@ export class InstructionCycleMode {
         const stageElement = document.getElementById('stage-title');
         const explanationElement = document.getElementById('stage-explanation');
         const currentStageElement = document.getElementById('current-stage');
-        
+
         if (stageElement) stageElement.textContent = stage;
         if (explanationElement) explanationElement.textContent = description;
         if (currentStageElement) currentStageElement.textContent = stage;
@@ -145,7 +165,7 @@ export class InstructionCycleMode {
         if (!actionElement) return;
 
         let actionText = '';
-        
+
         switch (step.type) {
             case 'highlight':
                 actionText = `Activating ${step.component}`;
@@ -163,7 +183,7 @@ export class InstructionCycleMode {
             default:
                 actionText = 'Processing...';
         }
-        
+
         actionElement.textContent = actionText;
     }
 
@@ -178,7 +198,13 @@ export class InstructionCycleMode {
         return colorMap[color] || 'Signal';
     }
 
-    delay(ms, speedMultiplier) {
-        return new Promise(resolve => setTimeout(resolve, ms / speedMultiplier));
+    async delay(ms, speedMultiplier) {
+        const duration = ms / speedMultiplier;
+        const start = Date.now();
+        while (Date.now() - start < duration) {
+            // Poll for interrupt flag more frequently for better responsiveness
+            if (this.controller && this.controller.shouldInterrupt) return;
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
     }
 }

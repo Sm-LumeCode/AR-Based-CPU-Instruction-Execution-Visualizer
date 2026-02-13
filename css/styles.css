@@ -801,11 +801,30 @@ body {
    ============================================================ */
 @media (min-width: 1025px) and (max-width: 1366px) {
     :root {
-        --panel-width: 310px;
+        --panel-width: 330px;
     }
 
     #control-panel {
-        padding: 10px;
+        padding: 12px;
+    }
+
+    .panel-header {
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .panel-header h2 {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+
+    .control-buttons {
+        justify-content: center;
+        width: 100%;
+        gap: 15px;
+        /* Proper spacing between replay and reset */
     }
 
     .instruction-grid {
@@ -824,6 +843,7 @@ body {
         padding: 6px;
     }
 }
+
 
 /* ============================================================
    SMALL LAPTOPS / LARGE TABLETS  (769–1024px)

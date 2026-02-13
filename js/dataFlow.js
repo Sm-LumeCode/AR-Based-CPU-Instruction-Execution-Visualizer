@@ -6,7 +6,7 @@
 export class DataFlow {
     constructor(scene) {
         this.scene = scene;
-        this.activeTokens = [];
+        this.activeElements = []; // Track objects and their data
         this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         this.scaleFactor = this.isMobile ? 0.35 : 0.45; // Match CPU model scale
     }
@@ -16,12 +16,10 @@ export class DataFlow {
      */
     createDataToken(start, end, color = 0x00ff00, duration = 1.0, label = '') {
         return new Promise((resolve) => {
-            // Larger tokens for mobile visibility
             const tokenSize = this.isMobile ? 0.08 : 0.06;
-            
             const geometry = new THREE.SphereGeometry(
-                tokenSize * this.scaleFactor, 
-                this.isMobile ? 10 : 12, 
+                tokenSize * this.scaleFactor,
+                this.isMobile ? 10 : 12,
                 this.isMobile ? 10 : 12
             );
             const material = new THREE.MeshStandardMaterial({
@@ -31,37 +29,29 @@ export class DataFlow {
                 metalness: 0.3,
                 roughness: 0.3
             });
-            
+
             const token = new THREE.Mesh(geometry, material);
             token.position.copy(start);
             this.scene.add(token);
-            this.activeTokens.push(token);
-            
-            // Animate using GSAP
+
+            const data = { mesh: token, geometry, material, resolve };
+            this.activeElements.push(data);
+
+            // GSAP Position Animation
             gsap.to(token.position, {
-                x: end.x,
-                y: end.y,
-                z: end.z,
+                x: end.x, y: end.y, z: end.z,
                 duration: duration,
                 ease: "power2.inOut",
                 onComplete: () => {
-                    this.scene.remove(token);
-                    const index = this.activeTokens.indexOf(token);
-                    if (index > -1) {
-                        this.activeTokens.splice(index, 1);
-                    }
-                    geometry.dispose();
-                    material.dispose();
+                    this.removeElement(data);
                     resolve();
                 }
             });
-            
-            // Enhanced pulsing effect for mobile
+
+            // GSAP Scale Animation
             const pulseScale = this.isMobile ? 1.6 : 1.5;
             gsap.to(token.scale, {
-                x: pulseScale,
-                y: pulseScale,
-                z: pulseScale,
+                x: pulseScale, y: pulseScale, z: pulseScale,
                 duration: 0.4,
                 yoyo: true,
                 repeat: Math.floor((duration / 0.4) * 2)
@@ -70,7 +60,7 @@ export class DataFlow {
     }
 
     /**
-     * Create glowing wire effect - Mobile optimized
+     * Create glowing wire effect
      */
     createGlowingWire(start, end, color = 0xffff00, duration = 0.5) {
         return new Promise((resolve) => {
@@ -82,25 +72,24 @@ export class DataFlow {
                 transparent: true,
                 opacity: 0
             });
-            
+
             const wire = new THREE.Line(geometry, material);
             this.scene.add(wire);
-            
-            // Brighter fade in for mobile
+
+            const data = { mesh: wire, geometry, material, resolve };
+            this.activeElements.push(data);
+
             const maxOpacity = this.isMobile ? 1.0 : 0.9;
             gsap.to(material, {
                 opacity: maxOpacity,
                 duration: 0.2,
                 onComplete: () => {
                     setTimeout(() => {
-                        // Fade out
                         gsap.to(material, {
                             opacity: 0,
                             duration: 0.3,
                             onComplete: () => {
-                                this.scene.remove(wire);
-                                geometry.dispose();
-                                material.dispose();
+                                this.removeElement(data);
                                 resolve();
                             }
                         });
@@ -111,12 +100,35 @@ export class DataFlow {
     }
 
     /**
-     * Clear all active tokens
+     * Internal element removal
+     */
+    removeElement(data) {
+        const index = this.activeElements.indexOf(data);
+        if (index > -1) this.activeElements.splice(index, 1);
+
+        if (data.mesh) {
+            // Kill all GSAP tweens associated with this object's components
+            gsap.killTweensOf(data.mesh);
+            gsap.killTweensOf(data.mesh.position);
+            gsap.killTweensOf(data.mesh.scale);
+            if (data.material) gsap.killTweensOf(data.material);
+            this.scene.remove(data.mesh);
+        }
+
+        if (data.geometry) data.geometry.dispose();
+        if (data.material) data.material.dispose();
+    }
+
+    /**
+     * Clear everything instantly (for replay/reset)
      */
     clearAllTokens() {
-        this.activeTokens.forEach(token => {
-            this.scene.remove(token);
+        console.log(`🧹 Clearing ${this.activeElements.length} active data elements`);
+        [...this.activeElements].forEach(data => {
+            if (data.resolve) data.resolve(); // Unblock awaits
+            this.removeElement(data);
         });
-        this.activeTokens = [];
+        this.activeElements = [];
     }
+
 }

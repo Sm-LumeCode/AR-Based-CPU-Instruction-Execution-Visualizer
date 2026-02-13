@@ -38,7 +38,7 @@ export class InstructionEncoder {
      */
     encode(type, params) {
         const opcode = this.opcodes[type.toUpperCase()];
-        
+
         if (opcode === undefined) {
             return this.createErrorEncoding('Invalid opcode: ' + type);
         }
@@ -98,13 +98,13 @@ export class InstructionEncoder {
      */
     encodeImmediate(value) {
         if (value === undefined || value === null) return 0b00000000;
-        
+
         const numValue = parseInt(value);
-        
+
         // Clamp to 8-bit range (0-255)
         if (numValue < 0) return 0;
         if (numValue > 255) return 255;
-        
+
         return numValue & 0xFF;
     }
 
@@ -118,13 +118,13 @@ export class InstructionEncoder {
             // Binary representation
             binary16: this.to16BitBinary(binaryInstruction),
             binaryFormatted: this.formatBinary(binaryInstruction),
-            
+
             // Hexadecimal
             hex: '0x' + binaryInstruction.toString(16).toUpperCase().padStart(4, '0'),
-            
+
             // Decimal
             decimal: binaryInstruction,
-            
+
             // Field breakdown
             fields: {
                 opcode: {
@@ -217,7 +217,7 @@ export class InstructionEncoder {
 
         // Find opcode name
         const opcodeName = Object.keys(this.opcodes).find(key => this.opcodes[key] === opcode) || 'UNKNOWN';
-        
+
         // Find register names
         const reg1Name = Object.keys(this.registers).find(key => this.registers[key] === reg1);
         const reg2Name = Object.keys(this.registers).find(key => this.registers[key] === reg2);
