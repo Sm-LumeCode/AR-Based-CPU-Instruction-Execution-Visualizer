@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "name": "ar-cpu-visualizer",
+  "cleanUrls": true,
+  "buildCommand": null,
+  "installCommand": null,
+  "outputDirectory": ".",
+  "github": {
+    "silent": true
+  }
+}

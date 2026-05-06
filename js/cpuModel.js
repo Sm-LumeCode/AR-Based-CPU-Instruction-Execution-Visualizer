@@ -38,7 +38,7 @@ export class CPUModel {
             // Desktop: AGGRESSIVE shift to the empty left side
             // Move LEFT even further (-3.5) to use all that empty space
             // Move DOWN far (-1.2) to clear the top Ready box with larger blocks
-            this.xOffset = -3.9;
+            this.xOffset = -3.4;
             this.baseY = -1.6;
         }
 
@@ -77,7 +77,7 @@ export class CPUModel {
         // 3-char labels (MEM, MDR, MAR, ALU) get mid-sized text
         let fontScale = 0.55;
         if (label.length === 3) {
-            fontScale = 0.45; // Increased from 0.28 for better mobile clarity
+            fontScale = 0.38; // Increased from 0.28 for better mobile clarity
         } else if (label.length > 3) {
             fontScale = 0.28; // Reduced for 4+ chars to prevent overflow
         }
@@ -124,7 +124,7 @@ export class CPUModel {
     buildProgramCounter(baseY) {
         // PERFECTLY SQUARE cube
         const size = 0.28 * this.scaleFactor;
-        const geometry = new THREE.BoxGeometry(size, size, size);
+        const geometry = new THREE.BoxGeometry(size*1.5, size, size);
 
         // PC gets NORMAL text (No black outline)
         const texture = this.createLabeledTexture('PC', 0x00CCFF);
@@ -153,7 +153,7 @@ export class CPUModel {
     buildInstructionRegister(baseY) {
         // PERFECTLY SQUARE cube
         const size = 0.30 * this.scaleFactor;
-        const geometry = new THREE.BoxGeometry(size, size, size);
+        const geometry = new THREE.BoxGeometry(size*1.5, size, size);
 
         const texture = this.createLabeledTexture('IR', 0x4466FF);
         const materials = Array(6).fill(null).map(() =>
@@ -180,8 +180,8 @@ export class CPUModel {
 
     buildMemoryAddressRegister(baseY) {
         // WIDER RECTANGLE for MAR (25% wider)
-        const size = 0.26 * this.scaleFactor;
-        const geometry = new THREE.BoxGeometry(size * 1.25, size, size);
+        const size = 0.3 * this.scaleFactor;
+        const geometry = new THREE.BoxGeometry(size * 1.3, size, size);
 
         // MAR gets NORMAL text (No black outline)
         const texture = this.createLabeledTexture('MAR', 0xFF7700, 1280, 1024);
@@ -209,8 +209,8 @@ export class CPUModel {
 
     buildMemoryDataRegister(baseY) {
         // WIDER RECTANGLE for MDR (25% wider)
-        const size = 0.26 * this.scaleFactor;
-        const geometry = new THREE.BoxGeometry(size * 1.25, size, size);
+        const size = 0.3 * this.scaleFactor;
+        const geometry = new THREE.BoxGeometry(size * 1.3, size, size);
 
         // MDR gets NORMAL text (No black outline)
         const texture = this.createLabeledTexture('MDR', 0xFF4477, 1280, 1024);
@@ -361,14 +361,14 @@ export class CPUModel {
     buildALU(baseY) {
         // PERFECTLY SQUARE cube with label (like other components)
         const size = 0.35 * this.scaleFactor;
-        const geometry = new THREE.BoxGeometry(size*1.5, size*1.25, size);
+        const geometry = new THREE.BoxGeometry(size*1.5, size*1.7, size);
 
         // ALU gets NORMAL text (No black outline)
         const texture = this.createLabeledTexture('ALU', 0xFF0000);
         const materials = Array(6).fill(null).map(() =>
             new THREE.MeshStandardMaterial({
                 map: texture,
-                emissive: 0x440000,
+                emissive: 0x440000,  
                 emissiveIntensity: 0.4,
                 metalness: 0.6,
                 roughness: 0.4
@@ -391,9 +391,9 @@ export class CPUModel {
         // Reduced height even more to avoid bottom panel
         const size = 0.55 * this.scaleFactor;
         const geometry = new THREE.BoxGeometry(
-            size * 0.8,
-            size * 1.25, // REDUCED from 1.0 to 0.75 for safety
-            size * 0.3
+            size * 1,
+            size * 1.5, // REDUCED from 1.0 to 0.75 for safety
+            size *0.5
         );
 
         // HD Texture (1024x1024) with default high contrast text

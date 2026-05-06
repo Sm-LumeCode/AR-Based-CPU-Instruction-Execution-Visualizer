@@ -1,0 +1,16 @@
+{
+  "name": "ar-cpu-visualizer",
+  "version": "1.0.0",
+  "description": "Interactive AR-based CPU instruction execution visualizer",
+  "scripts": {
+    "start": "serve ."
+  },
+  "keywords": [
+    "AR",
+    "CPU",
+    "Visualization",
+    "Architecture"
+  ],
+  "author": "",
+  "license": "ISC"
+}
