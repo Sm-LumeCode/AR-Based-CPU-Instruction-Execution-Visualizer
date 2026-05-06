@@ -51,3 +51,4 @@ Refer to `BINARY_FORMAT.md` for more details.
 
 ---
 Built with intrest for Computer Architecture education.
+Deployed Website link: https://ar-based-cpu-instruction-execution.vercel.app/
